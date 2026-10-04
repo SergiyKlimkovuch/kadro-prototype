@@ -218,8 +218,8 @@ export function wheelSet({ columns }) {
 /* ---------- Phase 6: S10 Inspo, S11 Reference, Pose guide ---------- */
 
 /** SegmentChip sm з емодзі і вибором (aria-pressed): чіпи категорій S10. emoji - виняток open-questions #11 */
-export function categoryChip({ id, emoji, label, ariaLabel, pressed }) {
-  return `<button class="segment-chip segment-chip--sm" type="button" aria-pressed="${Boolean(pressed)}" aria-label="${esc(ariaLabel)}" data-category="${esc(id)}"><span class="segment-chip__emoji" aria-hidden="true">${emoji}</span><span aria-hidden="true">${esc(label)}</span></button>`;
+export function categoryChip({ id, emoji, img, label, ariaLabel, pressed }) {
+  return `<button class="segment-chip segment-chip--sm" type="button" aria-pressed="${Boolean(pressed)}" aria-label="${esc(ariaLabel)}" data-category="${esc(id)}"><span class="segment-chip__emoji" aria-hidden="true">${img ? `<img class="segment-chip__emoji-img" src="${esc(img)}" alt="" draggable="false">` : emoji}</span><span aria-hidden="true">${esc(label)}</span></button>`;
 }
 
 /** Slider (ComponentsKit SliderVM small): value/min/max/step у одиницях значення; --slider-p = частка 0..1 */

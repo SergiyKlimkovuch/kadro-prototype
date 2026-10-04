@@ -32,7 +32,7 @@ const ROWS = [inspoCategories.slice(0, 4), inspoCategories.slice(4)];
 function skeleton() {
   const rows = ROWS.map((row, i) => `
     <div class="insp__row" data-row="${i}">
-      ${row.map((c) => categoryChip({ id: c.id, emoji: c.emoji, label: copy.inspoCategories[c.id], ariaLabel: t.a11y.category(copy.inspoCategories[c.id], false), pressed: false })).join('')}
+      ${row.map((c) => categoryChip({ id: c.id, emoji: c.emoji, img: c.img, label: copy.inspoCategories[c.id], ariaLabel: t.a11y.category(copy.inspoCategories[c.id], false), pressed: false })).join('')}
     </div>`).join('');
   const end = `${iconButton({ name: 'plus', label: t.nav.add, variant: 'solid', action: 'add' })}${iconButton({ name: 'magnifying-glass', label: t.nav.search, variant: 'solid', action: 'search-open' })}`;
   return `

@@ -31,16 +31,16 @@ export const looks = [
   { id: 'mono', plus: true, filter: 'grayscale(1) contrast(1.2)' },
 ];
 
-/** PRD FR-8.1. Емодзі чіпів - виняток open-questions #11. Назви - copy.inspoCategories. Два ряди по 4 чіпи. */
+/** PRD FR-8.1. Емодзі чіпів - виняток open-questions #11; img - Apple-емодзі PNG 64 (assets/emoji, джерело - набір замовника, CREDITS.md). Назви - copy.inspoCategories. Два ряди по 4 чіпи. */
 export const inspoCategories = [
-  { id: 'favorites', emoji: '⭐' },
-  { id: 'ootd', emoji: '👗' },
-  { id: 'goingOut', emoji: '🥂' },
-  { id: 'city', emoji: '🏙️' },
-  { id: 'cafe', emoji: '☕' },
-  { id: 'travel', emoji: '✈️' },
-  { id: 'birthday', emoji: '🎂' },
-  { id: 'besties', emoji: '👯' },
+  { id: 'favorites', emoji: '⭐', img: 'assets/emoji/2b50.png' },
+  { id: 'ootd', emoji: '👗', img: 'assets/emoji/1f457.png' },
+  { id: 'goingOut', emoji: '🥂', img: 'assets/emoji/1f942.png' },
+  { id: 'city', emoji: '🌆', img: 'assets/emoji/1f306.png' },
+  { id: 'cafe', emoji: '☕', img: 'assets/emoji/2615.png' },
+  { id: 'travel', emoji: '✈️', img: 'assets/emoji/2708.png' },
+  { id: 'birthday', emoji: '🎂', img: 'assets/emoji/1f382.png' },
+  { id: 'besties', emoji: '👯', img: null }, // PNG немає в наборі - системний емодзі
 ];
 
 /**
