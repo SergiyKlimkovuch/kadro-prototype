@@ -50,20 +50,40 @@ export function toggle({ name, checked, label, local = false }) {
 }
 
 /**
- * ListRow: kind chevron | value | toggle | menu.
- * { title, subtitle, glyph, value, kind, name, checked, action }
+ * ListRow: kind chevron | value | toggle | menu | static | action | external.
+ * { title, subtitle, glyph, value, kind, name, checked, action, local, disabled, ariaLabel }
+ *  - static: не тапабельний рядок "назва - значення" (S12-storage Used, S12-permissions статус, S12-about Plan)
+ *  - action: тапабельний без хвоста (Restore Purchases, Clear generated images)
+ *  - external: тапабельний з іконкою "відкриває поза застосунком" замість chevron (Terms, Settings)
+ *  - disabled: aria-disabled (глобальне .5 і pointer-events: none)
  */
-export function listRow({ title, subtitle, glyph, value, kind = 'chevron', name, checked, action, local = false }) {
+export function listRow({ title, subtitle, glyph, value, kind = 'chevron', name, checked, action, local = false, disabled = false, ariaLabel }) {
   const lead = glyph ? `<span class="list-row__glyph">${icon(glyph)}</span>` : '';
   const body = `<span class="list-row__content"><span class="list-row__title">${esc(title)}</span>${subtitle ? `<span class="list-row__subtitle" data-bind="${esc(name || '')}-subtitle">${esc(subtitle)}</span>` : ''}</span>`;
+  const dis = disabled ? ' aria-disabled="true"' : '';
+  const aria = ariaLabel ? ` aria-label="${esc(ariaLabel)}"` : '';
+  const val = value != null ? `<span class="list-row__value" data-bind="${esc(name || '')}-value">${esc(value)}</span>` : '';
   if (kind === 'toggle') {
     return `<div class="list-row">${lead}${body}${toggle({ name, checked, label: title, local })}</div>`;
   }
   if (kind === 'menu') {
-    return `<button class="list-row list-row--tappable list-row--menu" type="button" data-menu="${esc(name)}" aria-haspopup="menu">${lead}${body}<span class="list-row__value" data-bind="${esc(name)}-value">${esc(value)}</span>${icon('chevron-up-down', 'outline', { className: 'list-row__chevron' })}</button>`;
+    return `<button class="list-row list-row--tappable list-row--menu" type="button" data-menu="${esc(name)}" aria-haspopup="menu"${aria}>${lead}${body}<span class="list-row__value" data-bind="${esc(name)}-value">${esc(value)}</span>${icon('chevron-up-down', 'outline', { className: 'list-row__chevron' })}</button>`;
   }
-  const val = value != null ? `<span class="list-row__value" data-bind="${esc(name || '')}-value">${esc(value)}</span>` : '';
-  return `<button class="list-row list-row--tappable" type="button"${action ? ` data-action="${action}"` : ''}>${lead}${body}${val}${icon('chevron-right', 'outline', { className: 'list-row__chevron' })}</button>`;
+  if (kind === 'static') {
+    return `<div class="list-row">${lead}${body}${val}</div>`;
+  }
+  const tail = { action: '', external: icon('arrow-top-right-on-square', 'outline', { className: 'list-row__chevron' }) }[kind]
+    ?? icon('chevron-right', 'outline', { className: 'list-row__chevron' });
+  return `<button class="list-row list-row--tappable" type="button"${action ? ` data-action="${action}"` : ''}${dis}${aria}>${lead}${body}${val}${tail}</button>`;
+}
+
+/** NavBar (push-екрани S12, далі S10/S11): Back (solid, над рівним фоном) + заголовок по центру */
+export function navBar({ title, backLabel }) {
+  return `
+    <header class="navbar">
+      ${iconButton({ name: 'chevron-left', label: backLabel, variant: 'solid', action: 'back' })}
+      <h1 class="navbar__title t-headline">${esc(title)}</h1>
+    </header>`;
 }
 
 /** ListGroup з секцією */

@@ -57,6 +57,11 @@ export function createSheetLayer({ theme, detent = 'medium', content, onRequestC
   panel.append(content);
 
   el.querySelector('.scrim').addEventListener('click', () => onRequestClose());
+  // aria-disabled кнопка Done/Cancel не закриває лист (клавіатура: Enter/Space дають click) - capture, до обробників екрана
+  panel.addEventListener('click', (e) => {
+    const done = e.target.closest('[data-sheet-done]');
+    if (done && done.getAttribute('aria-disabled') === 'true') { e.preventDefault(); e.stopPropagation(); }
+  }, true);
   panel.addEventListener('click', (e) => {
     if (e.target.closest('[data-sheet-done]')) onRequestClose();
   });
@@ -270,6 +275,7 @@ export function showToast({ theme = currentTheme(), ...desc }) {
  * role: 'radio' (вибір одного значення, типово) | 'checkbox' (незалежні перемикачі, options[].checked)
  *       | 'action' (прості дії без стану, `menuitem`, без галочки; options[].destructive - червоний пункт, S08 Delete session)
  */
+/** options[].tag - позначка праворуч від пункту (Plus-опція в S12, badge neutral над суцільним меню) */
 export function openMenu({ anchor, options, value, onSelect, role = 'radio', solid = false, theme = currentTheme() }) {
   const app = appRoot();
   const layer = h('<div class="layer menu-layer"></div>');
@@ -281,7 +287,8 @@ export function openMenu({ anchor, options, value, onSelect, role = 'radio', sol
     const b = h(`
       <button class="menu__item${o.destructive ? ' menu__item--destructive' : ''}" type="button" role="${itemRole}"${role === 'action' ? '' : ` aria-checked="${o.checked ?? o.value === value}"`}>
         ${role === 'action' ? '' : icon('check', 'outline', { className: 'menu__check' })}
-        <span>${esc(o.label)}</span>
+        <span class="menu__label">${esc(o.label)}</span>
+        ${o.tag ? `<span class="badge badge--neutral menu__tag">${esc(o.tag)}</span>` : ''}
       </button>`);
     b.addEventListener('click', (e) => {
       e.stopPropagation();

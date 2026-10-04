@@ -438,7 +438,9 @@ button {
 .menu {
   position: absolute;
   z-index: var(--z-popover);
-  width: var(--menu-w);
+  width: max-content;                       /* S12-saving: "Auto-save everything" + тег Plus не влазить у 250 без переносу */
+  min-width: var(--menu-w);
+  max-width: calc(100% - var(--sp-4));
   padding: var(--sp-1) 0;
   border-radius: var(--radius-menu);
   box-shadow: var(--glass-shadow);
@@ -471,6 +473,32 @@ button {
 }
 .menu__check.icon { visibility: hidden; }
 .menu__item[aria-checked="true"] .menu__check.icon { visibility: visible; }
+
+/* Menu: тег Plus праворуч від пункту (S12-capture-defaults Look, S12-saving). Тег - Badge neutral */
+.menu__label { flex: 1; min-width: 0; }
+.menu__tag { margin-left: var(--sp-1); }
+
+/* ---------- NavBar (скрін 07, 09-15: Back-коло зліва, заголовок Headline по центру) ----------
+   Заголовок абсолютний: лишається по центру, хоч би яка ширина кнопки. Поля 44 + 16 з обох боків. */
+.navbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: none;
+  height: var(--tap);
+  padding: 0 var(--sp-1);
+}
+.navbar__title {
+  position: absolute;
+  left: calc(var(--tap) + var(--sp-2));
+  right: calc(var(--tap) + var(--sp-2));
+  margin: 0;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
 
 /* ---------- PageIndicator (S01 і далі M01 "02 / 05" - окремий компонент) ----------
    Скрін 01-04: ряд крапок, активна - витягнута пігулка. Розміри [approx]; поведінка = UIPageControl. */
@@ -535,6 +563,7 @@ button {
    ComponentsKit Modal/BottomModalVM: contentPaddings 16, drag to dismiss, hidesOnSwipe;
    DEV-DOC: виїзд 400 мс, скрим 30%, закриття drag > 25% висоти; скріни 23, 24 - floating-лист iOS 26. */
 .sheet-layer { z-index: var(--z-sheet); }
+.layer--modal ~ .sheet-layer { z-index: var(--z-modal-sheet); } /* лист, відкритий ПІСЛЯ modal-шару (A03 над M01), лежить над ним */
 .scrim {
   position: absolute;
   inset: 0;
@@ -1522,3 +1551,28 @@ button {
 
 /* ---------- Menu: деструктивний пункт (Delete session) ---------- */
 .menu__item--destructive { color: var(--danger); }
+
+/* ---------- Phase 5: Button accent, Badge accent, Spinner (M01 / A03) ---------- */
+/* Button accent: CTA пейволу (brand.md: --accent-gradient лише для Upgrade-банера S12 і CTA-акценти пейволу); текст --on-accent (≈ 10:1) */
+.btn--accent { background: var(--accent-gradient); color: var(--on-accent); }
+/* Badge accent: "7 days free" на плані Annual. ShipSwift SWPaywallView.demoPlanRow: Capsule з accentColor + caption2 semibold;
+   у нас текст чорний (--on-accent): білий на бежі заборонений brand.md */
+.badge--accent { color: var(--on-accent); background: var(--accent); }
+/* Spinner: ComponentsKit Loading (SULoading) - дуга 270 градусів (trim 0...0.75), лінійне обертання 1 с, medium 36 / лінія 4.5.
+   Reduced motion: замість обертання - пульсація opacity; статус дублюється текстом "Processing…" */
+.spinner {
+  flex: none;
+  box-sizing: border-box;
+  width: var(--spinner-size);
+  height: var(--spinner-size);
+  border: var(--spinner-w) solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--radius-pill);
+  animation: spinner-rotate var(--dur-spin) linear infinite;
+}
+.spinner--sm { width: var(--icon); height: var(--icon); border-width: var(--radio-line); }
+@keyframes spinner-rotate { to { transform: rotate(360deg); } }
+@keyframes spinner-fade { from { opacity: 1; } to { opacity: var(--disabled-opacity); } }
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation: spinner-fade var(--dur-spin) ease-in-out infinite alternate; }
+}

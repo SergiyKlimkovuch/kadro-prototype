@@ -6,8 +6,10 @@
  * (приватний режим Safari не має ламати застосунок - DEV-DOC DoD).
  */
 
+import { copy } from './copy.js';
+
 const STORAGE_KEY = 'kadro.state.v1';
-const PERSISTED = ['onboarded', 'coachSeen', 'focalHintSeen', 'permissions', 'isPlus', 'exports', 'camera', 'session', 'lookId', 'settings'];
+const PERSISTED = ['onboarded', 'coachSeen', 'focalHintSeen', 'permissions', 'isPlus', 'exports', 'camera', 'session', 'lookId', 'settings', 'storage'];
 
 export function defaults() {
   return {
@@ -25,6 +27,13 @@ export function defaults() {
     settings: {
       grid: true, level: true, keepAwake: true, flashBeforeShot: true,
       haptics: true, countdownSound: true, saveMode: 'manual', keepOriginals: true,
+    },
+    // S12-storage: [mock] розміри з copy (open-questions #100); Clear / Remove orphaned їх зменшують
+    storage: {
+      usedMb: copy.S12.mock.usedMb,
+      generatedMb: copy.S12.mock.generatedMb,
+      orphanedCount: copy.S12storage.mock.orphanedCount,
+      orphanedMb: copy.S12storage.mock.orphanedMb,
     },
     run: null,
     sessions: [],
