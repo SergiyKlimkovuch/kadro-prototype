@@ -1,0 +1,324 @@
+/* =============================================================================
+   tokens.css - єдине джерело значень прототипу Kadro.
+   Джерела: DEV-DOC.md "Токени", "Liquid Glass у вебі", "Типографіка",
+   "Анімації та мікровзаємодії"; docs/design-system/brand.md (акцент);
+   ComponentsKit Theme/Layout.swift (радіуси, disabledOpacity, press-scale);
+   Apple HIG system colors / type ramp; skills emilkowalski--animate, --apple-design.
+   Значення, оцінені зі скрінів PerPic (296x500 з рамкою), позначені [approx].
+
+   Тема ставиться ЕКРАНОМ: data-theme="light|dark" на корені екрана
+   (CLAUDE.md 1.8). prefers-color-scheme НЕ використовуємо.
+   ============================================================================= */
+
+:root {
+  /* ---- Бренд (brand.md) - однакові для обох тем ---- */
+  --accent: #D9C5A0;         /* [approx] беж (замовник 2026-10-04: чорно-бежевий бренд); на білому лише заливка/крапка, не текст */
+  --accent-gradient: linear-gradient(135deg, #EBDDC0 0%, #D9C5A0 55%, #BFA777 100%); /* [approx] */
+  --on-accent: #000000;      /* чорний текст на бежі: контраст > 10:1 */
+
+  /* ---- Системні акценти (DEV-DOC "Токени") ---- */
+  --rec: #FF3B30;            /* кнопка Stop */
+  --danger: var(--rec);      /* destructive-дії, error-toast; той самий iOS systemRed, окремий колір не вводимо */
+  --focus: #FFD60A;          /* рамка фокусу, сонечко експозиції, горизонт "рівно" */
+
+  /* Абсолютні білий/чорний: для елементів поверх фото/видошукача, де колір не залежить від теми */
+  --white: #FFFFFF;
+  --black: #000000;
+
+  /* ---- Шрифти (DEV-DOC "Стек": шрифт) ---- */
+  --font-sans: -apple-system, "SF Pro", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", monospace;
+  --font-rounded: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif; /* вордмарк, brand.md */
+
+  /* ---- Типографіка (DEV-DOC "Типографіка"; line-height - Apple HIG type ramp) ---- */
+  --fs-large-title: 34px;  --fw-large-title: 700; --lh-large-title: 41px;
+  --fs-title2: 22px;       --fw-title2: 600;      --lh-title2: 28px;
+  --fs-headline: 17px;     --fw-headline: 600;    --lh-headline: 22px;
+  --fs-body: 17px;         --fw-body: 400;        --lh-body: 22px;
+  --fs-footnote: 13px;     --fw-footnote: 400;    --lh-footnote: 18px;
+  --fs-mono-caption: 11px; --fw-mono-caption: 500; --lh-mono-caption: 13px; --ls-mono-caption: .08em;
+  --fs-countdown: 96px;    --fw-countdown: 700;   --lh-countdown: 1;
+  /* Кнопки small: ComponentsKit Layout.typography.button.small = 14 / medium */
+  --fs-button-sm: 14px;    --fw-button-sm: 500;
+  /* ComponentsKit typography.button.medium = 16 / medium; body.medium = 16 / regular (SegmentedControl) */
+  --fs-button-md: 16px;    --fw-button-md: 500;
+  --fs-segment: 16px;
+  /* Tracking великого тексту від'ємний (emilkowalski--apple-design §15) */
+  --ls-display: -0.02em;
+  /* Вордмарк (brand.md): 22 у хедері S04, 28 онбординг/пейвол [approx], 34 Settings */
+  --fs-wordmark-sm: 22px; --fs-wordmark-md: 28px; --fs-wordmark-lg: 34px;
+  --fw-wordmark: 700; --ls-wordmark: -0.02em;
+
+  /* ---- Spacing: сітка 8 pt (CLAUDE.md 1.7). --sp-half - лише для кітових 4 pt ---- */
+  --sp-half: 4px;   /* ComponentsKit SegmentedControlVM.outerPaddings = 4 */
+  --sp-1: 8px;
+  --sp-2: 16px;
+  --sp-3: 24px;
+  --sp-4: 32px;
+  --sp-5: 40px;
+  --sp-6: 48px;
+  --sp-icon-text: 6px; /* ShipSwift SWAlert: HStack(spacing: 6) іконка-текст у тості */
+
+  /* ---- Радіуси (DEV-DOC "Токени" + kits) ---- */
+  --radius-viewfinder: 36px;
+  --radius-card: 26px;     /* групи списків, листи; = ComponentsKit containerRadius.large */
+  --radius-pill: 999px;
+  --radius-sm: 12px;       /* ComponentsKit componentRadius.medium - мініатюри, дрібні плитки */
+  --radius-alert: 32px;    /* [approx] скрін 05-camera-permission-alert: ~22px з 260px ширини екрана */
+  --radius-menu: 26px;     /* [approx] скрін 09-capture-defaults-delay-menu, = --radius-card */
+
+  /* ---- Розміри ---- */
+  --tap: 44px;             /* HIG мінімальний tap target */
+  --btn-h: 54px;           /* DEV-DOC "Компоненти": Button висота 54 (рішення користувача, open-questions #16) */
+  --btn-h-sm: 36px;        /* ComponentsKit ButtonVM.height small = 36 */
+  --btn-pad-x: 24px;       /* ComponentsKit ButtonVM.horizontalPadding large = 24 */
+  --btn-pad-x-sm: 16px;    /* ComponentsKit ButtonVM.horizontalPadding small = 16 */
+  --btn-pad-x-md: 20px;    /* ComponentsKit ButtonVM.horizontalPadding medium = 20 */
+  --btn-content-space: 8px;  /* ComponentsKit ButtonVM.contentSpacing = 8 (через margin) */
+  --icon: 24px;            /* ComponentsKit ButtonVM.imageSide medium = 24; Heroicons 24 */
+  --icon-xs: 14px;         /* [approx] замок у підписі S01, скрін 01 (≈ 9 px ≈ 13 pt) */
+  --icon-sm: 20px;         /* ComponentsKit ButtonVM.imageSide small = 20 */
+  --icon-xl: 40px;         /* [approx] скрін 22: зірка старту ≈ 28 px / .69; скрін 06: іконка камери-off */
+  --start-btn: 72px;       /* DEV-DOC S04: кнопка старту сесії 72x72 */
+  --thumb: 56px;           /* [approx] скрін 22: мініатюра і Look ≈ 36 px / .69 = 52 pt, до сітки 8 */
+  --focus-frame: 72px;     /* [approx] скрін 31: рамка фокусу ≈ 50 px / .69 */
+  --focus-ring-w: 1.5px;   /* [approx] скрін 31: тонка жовта рамка */
+  --ring-w: 2px;           /* [approx] скрін 21: обвідка підсвіченого чіпа */
+  --vf-grid-opacity: .4;   /* [approx] скрін 22: тонкі світлі лінії сітки 3x3 */
+  --exposure-range: .5;    /* [approx] brightness 0.5-1.5 при exposure -1..1 (DEV-DOC: експозиція = CSS brightness) */
+  --coach-scrim-opacity: .72; /* [approx] скрін 21: екран під підказкою вицвілий */
+  --segment-h: 44px;       /* ComponentsKit SegmentedControlVM.height medium = 44 */
+  --segment-item-pad-x: 12px; /* ComponentsKit SegmentedControlVM.horizontalInnerPaddings medium = 12 */
+  --icon-hero: 40px;       /* [approx] іконка камери в плитці S02 */
+  --tile-hero: 80px;       /* [approx] плитка іконки S02 */
+  --dot: 6px;              /* [approx] UIPageControl: крапка; скрін 01-04 (≈ 4 px ≈ 6 pt) */
+  --dot-active-w: 18px;    /* [approx] активна крапка - витягнута пігулка, скрін 01-04 (≈ 12 px) */
+  --dot-inactive-opacity: .3; /* [approx] */
+  --card-ratio: 2 / 3;     /* [approx] скрін 01/02: картка слайда ≈ 162×242 px */
+  --card-pad: 16px;        /* відступ картки від вертикальних сусідів, сітка 8 */
+  --grabber-w: 36px;       /* drag handle 36x5 (docs/reference/auto-app/ios-html-guidelines.md) */
+  --grabber-h: 5px;
+  --grabber-top: 5px;      /* [approx] скрін 23-aspect-ratio-sheet */
+  --sheet-inset: 8px;      /* [approx] скрін 23/24: ~6-8px від краю екрана (iOS 26 floating sheet) */
+  --sheet-pad: 16px;       /* ComponentsKit BottomModalVM.contentPaddings = 16 */
+  --sheet-medium: 50%;     /* [approx] detent .medium: скрін 23 ~52% висоти */
+  --sheet-medium-tall: 62%; /* [approx] medium-tall (H04 Look): картка 152x203 + назва + опис у 2 рядки + підказка locked-стилю (Honey, free) без скролу, запас >= 16 над safe area bottom 34 (60% давало -1 pt); видошукач лишається видимим зверху */
+  --sheet-fit-max: 50%;    /* стеля листа за вмістом (detent fit, H01) = --sheet-medium */
+  --sheet-blur: blur(12px) saturate(180%); /* [approx] легкий blur листа: скрін 23 - майже непрозорий білий лист */
+  --alert-w: 300px;        /* ComponentsKit CenterModalVM size .small maxWidth = 300 */
+  --alert-pad: 16px;       /* ComponentsKit AlertVM.contentPaddings = 16 */
+  --alert-btn-space: 12px;   /* ComponentsKit AlertVM.buttonsSpacing = 12 (через margin) */
+  --row-h: 52px;           /* [approx] скрін 11-viewfinder-settings: рядок ~37px з 260 */
+  --row-pad-x: 16px;       /* iOS inset grouped, скрін 07/11 [approx] */
+  --list-inset: 16px;      /* [approx] скрін 07/11: група ~12px від краю з 260 */
+  --row-glyph: 32px;       /* [approx] скрін 07: кругла плашка іконки ~22px з 260 */
+  --toggle-w: 64px;        /* [approx] скрін 11: iOS 26 switch ~44x20px з 260 */
+  --toggle-h: 28px;
+  --toggle-knob-w: 36px;   /* [approx] скрін 11: knob-пігулка */
+  --toggle-knob-h: 24px;
+  --menu-w: 250px;         /* [approx] скрін 09: pull-down ~170px з 260 */
+  --toast-top: 40px;       /* ShipSwift SWAlert: .padding(.top, 40) від safe area */
+  --toast-pad-x: 16px;     /* SWAlert .padding(.horizontal, 16) */
+  --toast-pad-y: 10px;     /* SWAlert .padding(.vertical, 10) */
+  --slide-snap: 25%;        /* [approx] поріг перемикання слайда свайпом = чверть ширини */
+  --slide-fling: .3;        /* [approx] px/мс, швидкість-поріг свайпу слайда (DEV-DOC дає .5 лише для Review) */
+  --edge-swipe: 24px;      /* [approx] зона свайпу від лівого краю для back */
+  --hairline: 0.5px;       /* ComponentsKit borderWidth.small = 0.5 */
+  /* S05 Session capture - скріни 34/35 (чорний фон зливається з рамкою: екран ≈ x 18..278 px, 0.69 px/pt) */
+  --vf-capture-inset: 52px;  /* [approx] видошукач ≈ 72% ширини (рішення #50): (375 - 271) / 2 = 52; скрін 34/35: 168 / 260 ≈ 65%, збільшено за рішенням */
+  --stop-ring-w: 3px;        /* [approx] біле кільце Stop ≈ 2 px */
+  --stop-square: 24px;       /* [approx] червоний квадрат ≈ 18 px ≈ 26 pt -> 24 (= --icon) */
+  --radius-stop-square: 4px; /* [approx] заокруглення квадрата ≈ 2-3 px */
+  --thumb-sm: 48px;          /* [approx] мініатюра останнього кадру ≈ 32 px ≈ 46 pt -> 48 */
+  --pulse-scale: 1.15;       /* DEV-DOC "Анімації": відлік 3-2-1 scale 1 -> 1.15 -> 1 */
+  /* #49 (наше [+], FR-4.3): в останні 3 с цифра ≈ 160 pt (96 x 1.67), пульсація заливки і білого кільця на весь екран */
+  --countdown-big-scale: 1.67; /* [approx] 160 / 96; transform на цифрі 96 pt - без reflow панелі */
+  --beat-ring-w: 12px;       /* [approx] біле кільце пульсації по краю екрана */
+  --beat-tint: rgba(255, 255, 255, .12); /* [approx] заливка пульсації */
+  --dur-beat: 600ms;         /* [approx] одна пульсація: наростання + згасання, < 1 с кроку відліку */
+  --cap-hairline: rgba(255, 255, 255, .1); /* [approx] розділова лінія під панеллю, скрін 34/35 (ледь помітна) */
+  --notice-scrim: rgba(0, 0, 0, .6); /* [approx] затемнення видошукача під текстом паузи S05 (читабельність над живим кадром) */
+
+  /* ---- Phase 4: S06 Review / S07 Your keepers (скріни 36, 37, 38; екран ≈ 260 px = 375 pt, 0.69 px/pt) ---- */
+  --review-card-inset: 48px;   /* [approx] скрін 36: картка ≈ 195 px ≈ 281 pt -> (375 - 279) / 2; та сама ширина в S07 (картка ніби "складається") */
+  --review-card-ratio: 3 / 4;  /* скрін 36: ≈ 195 x 270 px = 0.72, кадр сесії 3:4 */
+  --review-card-shadow: 0 12px 32px rgba(0, 0, 0, .4); /* [approx] тінь картки над темним фоном */
+  --review-stack-dx-1: 10px;   /* [approx] скрін 36: друга картка виглядає справа ≈ 7 px */
+  --review-stack-dx-2: 20px;   /* [approx] третя - ≈ 14 px */
+  --review-stack-rot-1: 2deg;  /* DEV-DOC S06: зсув і поворот 2-4° */
+  --review-stack-rot-2: 4deg;
+  --review-stack-dim-1: .25;   /* [approx] скрін 36: картки позаду темніші */
+  --review-stack-dim-2: .45;
+  --review-bg-blur: 40px;      /* [approx] фон = розмита поточна картка (DEV-DOC S06) */
+  --review-bg-scale: 1.3;      /* [approx] приховує прозорі краї від blur */
+  --review-bg-scrim: rgba(0, 0, 0, .55); /* [approx] скрін 36: фон майже чорний з легким відблиском */
+  --stamp-ring-w: 3px;         /* [approx] обвідка напису Keep / Drop */
+  --stamp-rot: 12deg;          /* напис нахилений як максимальний нахил картки (DEV-DOC: до 12°) */
+  --tap-lg: 56px;              /* [approx] скрін 36/38: кругла Undo ≈ 40 px ≈ 58 pt, сітка 8 */
+  --count-badge: 24px;         /* [approx] скрін 38: бейдж кількості ≈ 14 px ≈ 20 pt -> 24 (число 13 pt) */
+  --keepers-thumb-w: 72px;     /* [approx] скрін 38: мініатюра ≈ 38 px ≈ 55 pt, картка у нас ширша (279 проти 208 pt) */
+  --keepers-thumb-rot: 6deg;   /* [approx] скрін 38: дві мініатюри з легким нахилом */
+  --keepers-thumb-dx: 20px;    /* [approx] скрін 38: перекриття мініатюр */
+
+  /* ---- Phase 3: листи H01-H04 (components.md: SessionValues, PresetCard, LookCard, WheelPicker, Badge, Carousel) ---- */
+  --badge-pad-x: 10px;     /* ShipSwift SWComponent/Display/SWStatusBadge.swift: .padding(.horizontal, 10) */
+  --badge-pad-y: 4px;      /* SWStatusBadge: .padding(.vertical, 4) */
+  --badge-tint-bg: 18%;    /* SWStatusBadge: tint.opacity(0.18) - заливка */
+  --badge-tint-stroke: 35%; /* SWStatusBadge: tint.opacity(0.35) - обведення 0.5 */
+  --badge-media-bg: rgba(0, 0, 0, .55); /* [approx] темне скло бейджа над фото: --glass-bg-dark (.45) на світлому небі дає контраст < 4.5:1 для білого 11 pt */
+  --values-card-h: 72px;   /* [approx] скрін 24: картка "Session values" ≈ 50 px / .69 */
+  --preset-card-w: 152px;  /* [approx] скрін 24/25: картка пресета ≈ 105 px / .69 */
+  --preset-card-h: 112px;  /* [approx] скрін 24/25: ≈ 80 px / .69 = 116 -> сітка 8 */
+  --radius-photo: 16px;    /* [approx] скрін 24: радіус фото-картки пресета ≈ 10 px / .69 ≈ 14.5 -> сітка 8 */
+  --photo-pad: 12px;       /* [approx] скрін 24: текст на картці ≈ 8 px від краю / .69; = SegmentedControlVM inner padding 12 */
+  --look-card-w: 152px;    /* [approx] скрін 26: центральний стиль ≈ 1/2 ширини листа з видимими сусідами (у PerPic - ілюстрації, у нас фото 3:4) */
+  --look-card-ratio: 3 / 4; /* DEV-DOC "Фото": базове фото Look - портрет, як кадр видошукача 3:4 */
+  --look-card-dim: .9;     /* [approx] скрін 26: нецентральні стилі дрібніші за центральний */
+  --wheel-row-h: 32px;     /* [approx] iOS UIPickerView: висота рядка ≈ 32 pt (у kits/skills барабана немає) */
+  --wheel-rows: 5;         /* [approx] iOS UIPickerView: 5 видимих рядків, вибраний по центру */
+  --fs-wheel: 22px;        /* [approx] iOS UIPickerView: цифри ≈ Title 2 за розміром, звичайна вага */
+  /* Заглушки фото (CREDITS.md "Placeholders"): лише щоб CSS-фільтр Look читався без фото.
+     Кольори - Apple HIG system colors; не продуктовий UI, у Figma замінюються фото. */
+  --ph-sky: #5AC8FA;       /* HIG systemTeal (iOS <= 14) - "небо" заглушки */
+  --ph-ground: #34C759;    /* HIG systemGreen - "земля" заглушки */
+  /* Приглушені тони (нейтраль --ph-neutral + 35-40% кольору): небо, стіна, земля. Заглушка не конкурує з UI,
+     а Honey / Blue Hour / Graphite лишаються відмінними (sepia, hue-rotate, grayscale потребують відтінку) */
+  --ph-neutral: #636366;   /* HIG systemGray2 dark: нейтраль заглушки однакова в обох темах (--fill-raised у світлій білий) */
+  --ph-look-sky: color-mix(in srgb, var(--ph-sky) 40%, var(--ph-neutral));
+  --ph-look-wall: color-mix(in srgb, var(--accent) 40%, var(--ph-neutral));
+  --ph-look-ground: color-mix(in srgb, var(--ph-ground) 35%, var(--ph-neutral));
+  --ph-look: linear-gradient(180deg, var(--ph-look-sky) 0%, var(--ph-look-sky) 30%, var(--ph-look-wall) 55%, var(--ph-look-ground) 80%, var(--ph-neutral) 100%);
+  /* Затемнення фото під білим текстом карток (скрін 24: білий текст прямо на фото) [approx] */
+  --photo-scrim: linear-gradient(180deg, rgba(0, 0, 0, .35) 0%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, .45) 100%);
+
+  /* ---- Phase 4: S08 Session gallery, S09 Photo viewer (components.md: PhotoGridItem, StatCounter, PhotoPager) ---- */
+  --photo-ratio: 3 / 4;    /* скрін 42: мініатюри ≈ 60x80 px = 3:4; кадр сесії = видошукач 3:4 (DEV-DOC "Фото") */
+  --grid-gap: 2px;         /* [approx] скрін 42: проміжок між мініатюрами ≈ 1-2 px; реалізується padding клітинки, не gap */
+  --viewer-btn: 56px;      /* [approx] скрін 39: glass-кнопки Favorite/Export/Delete ≈ 40 px / .69 = 58 pt -> сітка 8 */
+  --viewer-action-w: 88px; /* [approx] скрін 39: центри кнопок через ≈ 63 px = 91 pt -> колонка 88 (кнопка 56 + 32 між ними); фіксована, щоб підпис Unfavorite не зсував сусідів */
+
+  /* ---- Пристрій (DEV-DOC "Цільовий вьюпорт") ---- */
+  --device-w: 375px;
+  --device-h: 812px;
+  --device-safe-top: 50px;
+  --device-safe-bottom: 34px;
+  --radius-device: 48px;   /* [approx] рамка телефону на десктопі - декоративна, джерела немає */
+  --frame-bezel: 12px;     /* [approx] товщина рамки */
+  --frame-color: #111111;  /* [approx] колір рамки (поза екраном застосунку) */
+  --page-bg: #E5E5EA;      /* [approx] фон сторінки навколо рамки на десктопі (iOS systemGray5) */
+  --debug-w: 320px;        /* [approx] ширина debug-колонки поруч з рамкою (службова, не UI продукту) */
+
+  /* ---- Safe area: реальний Safari -> env(); рендер/десктоп -> --sim-safe-* ----
+     env() у десктопному Chrome визначений і = 0, тому фолбек env(x, y) не спрацює -
+     беремо max() з симульованим значенням. */
+  --safe-top: max(env(safe-area-inset-top, 0px), var(--sim-safe-top, 0px));
+  --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--sim-safe-bottom, 0px));
+
+  /* ---- Liquid Glass (DEV-DOC "Liquid Glass у вебі") ---- */
+  --glass-blur: blur(24px) saturate(180%);
+  --glass-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 8px 24px rgba(0, 0, 0, .12);
+  --glass-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, .45); /* верхня кромка скла без падаючої тіні: кнопки всередині видошукача (S04), де тінь вилізла б за край */
+  /* "Chrome"-матеріал для великих поверхонь (sheet, alert, menu, toast):
+     emilkowalski--apple-design §12 .toolbar: rgba(255,255,255,.6) + blur(20px) saturate(180%) */
+  --chrome-blur: blur(20px) saturate(180%);
+  /* ComponentsKit Layout.shadow.small: radius 10, offset y 6, black .1 -
+     суцільна IconButton над білим фоном (скрін 42-session-gallery: біле коло з м'якою тінню) */
+  --shadow-sm: 0 6px 10px rgba(0, 0, 0, .1);
+  /* DEV-DOC .glass--dark - явний темний варіант незалежно від теми екрана */
+  --glass-bg-dark: rgba(40, 40, 40, .45);
+  --glass-border-dark: rgba(255, 255, 255, .12);
+
+  /* ---- Скрими ---- */
+  --scrim-sheet: rgba(0, 0, 0, .3);   /* DEV-DOC "Анімації": фон затемнюється до 30% */
+  --scrim-alert: rgba(0, 0, 0, .35);  /* ComponentsKit ModalOverlay .dimmed = black .35 */
+  --scrim-push: rgba(0, 0, 0, .2);    /* [approx] затемнення попереднього екрана при push (DEV-DOC без числа) */
+
+  /* ---- Стани ---- */
+  --disabled-opacity: .5;  /* ComponentsKit Layout.disabledOpacity = 0.5 */
+  --press-scale: .96;      /* CLAUDE.md / ios-screen-builder: scale(.96) на :active */
+  --popover-scale: .95;    /* emilkowalski--animate RECIPES "Dropdown": scale(0.95) */
+  --modal-scale: .96;      /* emilkowalski--animate RECIPES "Modal": scale(0.96) */
+
+  /* ---- Рух (DEV-DOC "Анімації та мікровзаємодії"; криві - emilkowalski--animate) ---- */
+  --ease-ios: cubic-bezier(.32, .72, 0, 1);    /* основна крива DEV-DOC (= --ease-drawer) */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);  /* press, popover, toast */
+  --dur-press: 160ms;      /* emilkowalski--animate RECIPES "Button press" */
+  --dur-push: 350ms;
+  --dur-sheet: 400ms;
+  --dur-modal: 450ms;
+  --dur-alert: 200ms;      /* ComponentsKit ModalTransition .fast = 0.2 */
+  --dur-popover: 200ms;    /* emilkowalski--animate RECIPES "Dropdown" */
+  --dur-aspect: 300ms;
+  --dur-focus: 250ms;
+  --focus-scale-from: 1.4; /* DEV-DOC: рамка фокусу scale 1.4 -> 1 */
+  --focus-hold: 1500ms;    /* DEV-DOC: рамка фокусу зникає через 1.5 с (читається JS-ом) */
+  --dur-pulse: 300ms;
+  --dur-flash: 120ms;
+  --dur-thumb-fly: 400ms;
+  --dur-swipe: 280ms;
+  --dur-keepers: 350ms;
+  --dur-toast: 250ms;
+  --dur-toggle: 250ms;     /* [approx] перемикач - як рамка фокусу, найкоротша DEV-DOC-тривалість */
+  --dur-reduced: 150ms;    /* prefers-reduced-motion -> fade 150 мс */
+  --toast-hold: 2500ms;    /* DEV-DOC: автозакриття 2.5 с (читається JS-ом) */
+  --carousel-step: 4000ms;
+
+  /* ---- Шари ---- */
+  --z-screen: 1;
+  --z-overlay: 10;
+  --z-sheet: 20;
+  --z-modal: 30;
+  --z-alert: 40;
+  --z-popover: 45;
+  --z-toast: 50;
+  --z-debug: 100;
+}
+
+/* ---- Світла тема (DEV-DOC "Токени", колонка Light) ---- */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+  --wordmark-dot: #B89B65;  /* [approx] темніший беж: крапка логотипа на білому (--accent там майже не видно) */
+  --bg: #FFFFFF;
+  --bg-grouped: #F2F2F7;
+  --surface: #FFFFFF;
+  --label: #000000;
+  --label-2: rgba(60, 60, 67, .6);
+  --separator: rgba(60, 60, 67, .29);
+  /* Нейтральні заливки чіпів/сегментів - Apple HIG systemFill-ряд (немає в DEV-DOC, потрібні SegmentChip) */
+  --fill: rgba(120, 120, 128, .16);    /* secondarySystemFill */
+  --fill-2: rgba(118, 118, 128, .12);  /* tertiarySystemFill */
+  /* "Піднятий" контрол на треку --fill: вибраний сегмент, суцільна IconButton.
+     Light = біла (скрін 23, ComponentsKit SegmentedControlVM.selectedSegmentColor light = background). */
+  --fill-raised: #FFFFFF;
+  --toggle-on: #34C759;                /* iOS systemGreen light (рішення користувача, open-questions #21) */
+  --glass-bg: rgba(255, 255, 255, .18);
+  --glass-border: rgba(255, 255, 255, .35);
+  --chrome-bg: rgba(255, 255, 255, .6);
+  --chrome-border: rgba(255, 255, 255, .4); /* apple-design §12: світла верхня кромка */
+  /* Лист: скрін 23/24 - майже білий (~#F0F0F5) над темним видошукачем зі скримом 30%.
+     Альфа .92 білого над ~#000 + скрим дає ≈ 237-240 [approx] */
+  --sheet-bg: rgba(255, 255, 255, .92);
+}
+
+/* ---- Темна тема (S01, S02, S05-S07, S09, M01) ---- */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #000000;
+  --bg-grouped: #1C1C1E;
+  --surface: #2C2C2E;
+  --label: #FFFFFF;
+  --label-2: rgba(235, 235, 245, .6);
+  --separator: rgba(84, 84, 88, .6);
+  --fill: rgba(120, 120, 128, .32);    /* secondarySystemFill dark */
+  --fill-2: rgba(118, 118, 128, .24);  /* tertiarySystemFill dark */
+  /* Dark: Apple systemGray2 (dark) #636366 - заливка вибраного сегмента системного UISegmentedControl у темній темі;
+     світліша за трек і за ComponentsKit content2 dark #3F3F46, тож читається і на темному склі листа */
+  --fill-raised: #636366;
+  --toggle-on: #30D158;                /* iOS systemGreen dark */
+  --glass-bg: var(--glass-bg-dark);
+  --glass-border: var(--glass-border-dark);
+  --chrome-bg: rgba(40, 40, 40, .6);   /* [approx] RGB з DEV-DOC .glass--dark, альфа з apple-design .6 */
+  --chrome-border: rgba(255, 255, 255, .12);
+  --sheet-bg: var(--chrome-bg);        /* темна тема листа не змінюється */
+}

@@ -1,0 +1,1524 @@
+/* =============================================================================
+   components.css - бібліотека компонентів Kadro (DEV-DOC "Компоненти").
+   Правила: лише padding/margin (жодного gap), усі значення - var(--*) з tokens.css,
+   press-feedback scale(var(--press-scale)) на всьому тапабельному,
+   анімації лише transform/opacity. Індекс і джерела - docs/design-system/components.md.
+   ============================================================================= */
+
+/* ---------- База ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+[data-theme] { color: var(--label); }
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.icon {
+  display: block;
+  flex: none;
+  width: var(--icon);
+  height: var(--icon);
+}
+.icon--sm { width: var(--icon-sm); height: var(--icon-sm); }
+.icon--xs { width: var(--icon-xs); height: var(--icon-xs); }
+
+/* ---------- Типографіка (DEV-DOC "Типографіка") ---------- */
+.t-large-title { font: var(--fw-large-title) var(--fs-large-title)/var(--lh-large-title) var(--font-sans); letter-spacing: var(--ls-display); }
+.t-title2      { font: var(--fw-title2) var(--fs-title2)/var(--lh-title2) var(--font-sans); }
+.t-headline    { font: var(--fw-headline) var(--fs-headline)/var(--lh-headline) var(--font-sans); }
+.t-body        { font: var(--fw-body) var(--fs-body)/var(--lh-body) var(--font-sans); }
+.t-footnote    { font: var(--fw-footnote) var(--fs-footnote)/var(--lh-footnote) var(--font-sans); }
+.t-mono-caption {
+  font: var(--fw-mono-caption) var(--fs-mono-caption)/var(--lh-mono-caption) var(--font-mono);
+  letter-spacing: var(--ls-mono-caption);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+.t-countdown {
+  font: var(--fw-countdown) var(--fs-countdown)/var(--lh-countdown) var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--ls-display);
+}
+.t-secondary { color: var(--label-2); }
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* ---------- Press feedback (CLAUDE.md 1.9; emilkowalski--animate "Button press") ----------
+   Рух (scale) - лише без prefers-reduced-motion; при reduce - fade opacity 150 мс (apple-design §14). */
+@media (prefers-reduced-motion: no-preference) {
+  .pressable,
+  .btn, .icon-btn, .segment-chip, .segment-group__item,
+  .session-chip__main, .list-row--tappable, .toggle, .menu__item,
+  .alert__btn, .toast__action, .focal-badge, .focal-btn__disc {
+    transition: transform var(--dur-press) var(--ease-out);
+  }
+  .pressable:active,
+  .btn:active, .icon-btn:active, .segment-chip:active, .segment-group__item:active,
+  .session-chip__main:active, .toggle:active, .menu__item:active,
+  .alert__btn:active, .toast__action:active, .focal-badge:active,
+  .focal-btn:active .focal-btn__disc {
+    transform: scale(var(--press-scale));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* #74: штампи KEEP / DROP - лише opacity, без повороту */
+  .swipe-card__stamp--keep, .swipe-card__stamp--drop { transform: translate(-50%, -50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pressable, .btn, .icon-btn, .segment-chip, .segment-group__item,
+  .session-chip__main, .toggle, .menu__item, .alert__btn, .toast__action, .focal-badge, .focal-btn {
+    transition: opacity var(--dur-reduced) ease;
+  }
+  .pressable:active, .btn:active, .icon-btn:active, .segment-chip:active, .segment-group__item:active,
+  .session-chip__main:active, .toggle:active, .menu__item:active, .alert__btn:active, .toast__action:active,
+  .focal-badge:active, .focal-btn:active {
+    opacity: .6; /* [approx] */
+  }
+}
+/* Рядок списку: scale на повну ширину виглядає як "стрибок" групи - даємо підсвітку заливкою
+   (iOS cell highlight). Тільки opacity-шар, без анімації кольору. */
+.list-row--tappable::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--fill-2);
+  opacity: 0;
+  pointer-events: none;
+}
+.list-row--tappable:active::after { opacity: 1; }
+
+[disabled], [aria-disabled="true"] {
+  opacity: var(--disabled-opacity);
+  pointer-events: none;
+}
+
+/* ---------- Liquid Glass (DEV-DOC "Liquid Glass у вебі"; skill swiftui-liquid-glass) ----------
+   Лише над насиченим фоном (фото, видошукач). Над рівним фоном - суцільна заливка (CLAUDE.md 1.7). */
+.glass {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: var(--hairline) solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+/* Явний темний варіант для світлих екранів, де під кнопкою темне фото (DEV-DOC .glass--dark) */
+.glass--dark {
+  --glass-bg: var(--glass-bg-dark);
+  --glass-border: var(--glass-border-dark);
+  color: var(--white);
+}
+/* Chrome-матеріал великих поверхонь: sheet, alert, menu, toast (apple-design §12) */
+.chrome {
+  background: var(--chrome-bg);
+  -webkit-backdrop-filter: var(--chrome-blur);
+  backdrop-filter: var(--chrome-blur);
+  border: var(--hairline) solid var(--chrome-border);
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass, .chrome, .btn--secondary, .icon-btn--glass { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+
+/* ---------- Wordmark (brand.md: "kadro" + крапка --accent) ---------- */
+.wordmark {
+  display: inline-block;
+  font-family: var(--font-rounded);
+  font-weight: var(--fw-wordmark);
+  font-size: var(--fs-wordmark-sm);
+  line-height: 1;
+  letter-spacing: var(--ls-wordmark);
+  color: var(--label);
+  text-transform: lowercase;
+}
+.wordmark__dot { color: var(--wordmark-dot, var(--accent)); }
+.wordmark--md { font-size: var(--fs-wordmark-md); }
+.wordmark--lg { font-size: var(--fs-wordmark-lg); }
+
+/* ---------- Button (DEV-DOC: primary / secondary(glass) / text; висота 50) ----------
+   Джерело чисел: ComponentsKit Button/Models/ButtonVM.swift (padding, contentSpacing,
+   розмір small 36), DEV-DOC (висота 50, pill, Headline 17/600). */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--btn-h);
+  padding: 0 var(--btn-pad-x);
+  border-radius: var(--radius-pill);
+  font: var(--fw-headline) var(--fs-headline)/var(--lh-headline) var(--font-sans);
+  white-space: nowrap;
+  user-select: none;
+}
+.btn > .icon { margin-right: var(--btn-content-space); }
+/* primary: чорна pill на світлому екрані, біла на темному */
+.btn--primary { background: var(--label); color: var(--bg); }
+/* secondary: Liquid Glass - лише над фото/видошукачем */
+.btn--secondary {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: var(--hairline) solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  color: var(--label);
+}
+/* fill: secondary над РІВНИМ фоном (скло там розмивати нічого - CLAUDE.md 1.7), напр. Done у листі */
+.btn--fill { background: var(--fill); color: var(--label); }
+.btn--text { background: transparent; color: var(--label); }
+.btn--block { display: flex; width: 100%; }
+.btn--sm {
+  height: var(--btn-h-sm);
+  padding: 0 var(--btn-pad-x-sm);
+  font: var(--fw-button-sm) var(--fs-button-sm)/1 var(--font-sans);
+  position: relative;
+}
+.btn--sm > .icon { width: var(--icon-sm); height: var(--icon-sm); }
+/* hit area 44 для візуально 36-pt кнопки (HIG) */
+.btn--sm::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  top: calc((var(--btn-h-sm) - var(--tap)) / 2);
+  bottom: calc((var(--btn-h-sm) - var(--tap)) / 2);
+}
+
+/* ---------- IconButton (DEV-DOC: glass 44x44, plain) ----------
+   44 - HIG tap target і DEV-DOC; іконка 24 - ButtonVM.imageSide medium. Форма Capsule/коло -
+   дефолтна форма glassEffect (skill swiftui-liquid-glass). */
+.icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: var(--radius-pill);
+  color: var(--label);
+}
+.icon-btn--glass {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: var(--hairline) solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+/* solid: та сама кнопка над рівним фоном (Settings Back над --bg-grouped, скрін 07) */
+.icon-btn--solid { background: var(--fill-raised); box-shadow: var(--shadow-sm); }
+.icon-btn--plain { background: transparent; }
+/* sm: візуально 36 усередині щільних рядків (SessionChip ×), hit area лишається 44 */
+.icon-btn--sm { width: var(--btn-h-sm); height: var(--btn-h-sm); }
+.icon-btn--sm > .icon { width: var(--icon-sm); height: var(--icon-sm); }
+.icon-btn--sm::after {
+  content: "";
+  position: absolute;
+  inset: calc((var(--btn-h-sm) - var(--tap)) / 2);
+}
+
+/* ---------- SegmentChip (DEV-DOC: default, selected) ----------
+   Окремий чіп - скрін 22 (Photo Session / Photo Booth); група з вибором - скрін 23
+   (aspect ratio) і 31 (26/35/50). Числа: ComponentsKit SegmentedControlVM (висота 44,
+   outerPaddings 4, inner padding 12), ButtonVM medium (padding 20, шрифт 16/500). */
+.segment-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--segment-h);
+  padding: 0 var(--btn-pad-x-md);
+  border-radius: var(--radius-pill);
+  background: var(--fill);
+  color: var(--label);
+  font: var(--fw-button-md) var(--fs-button-md)/1 var(--font-sans);
+  white-space: nowrap;
+}
+.segment-chip > .icon { width: var(--icon-sm); height: var(--icon-sm); margin-right: var(--btn-content-space); }
+
+.segment-group {
+  display: inline-flex;
+  align-items: center;
+  height: var(--segment-h);
+  padding: var(--sp-half);
+  border-radius: var(--radius-pill);
+  background: var(--fill);
+}
+.segment-group__item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-width: var(--tap);
+  padding: 0 var(--segment-item-pad-x);
+  border-radius: var(--radius-pill); /* ComponentsKit: radius - outerPaddings; для pill = pill */
+  color: var(--label);
+  font: var(--fw-body) var(--fs-segment)/1 var(--font-sans); /* SegmentedControlVM font medium = mdBody 16 */
+  font-variant-numeric: tabular-nums;
+}
+/* hit area 44 по висоті: пігулка 36 (група 44 - padding 4 x 2), вильот у padding групи; по ширині сусіди
+   стикаються впритул, тож hit areas не перекриваються (на межі ділять навпіл) */
+.segment-group__item::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  top: calc(-1 * var(--sp-half));
+  bottom: calc(-1 * var(--sp-half));
+}
+.segment-group__item[aria-checked="true"] {
+  background: var(--fill-raised);
+  font-weight: var(--fw-headline);
+}
+
+/* ---------- SessionChip (DEV-DOC: "15s · 30 photos · 3s interval" + ×; скрін 30) ----------
+   Стан collapsed. Вигляд expanded референсом не покритий -> open-questions. */
+.session-chip {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: var(--segment-h);
+  padding: 0 var(--sp-half) 0 0;
+  border-radius: var(--radius-pill);
+  background: var(--fill);
+  color: var(--label);
+}
+.session-chip__main {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 var(--sp-1) 0 var(--sp-2);
+  border-radius: var(--radius-pill);
+  text-align: left;
+}
+.session-chip__main > .icon { width: var(--icon-sm); height: var(--icon-sm); margin-right: var(--sp-1); }
+.session-chip__text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  /* Скрін 30 - mono ~13, але найдовший формат copy.sessionSummary ("15s delay · 30 photos · 3s apart",
+     33 знаки) у mono 13 не влазить у 375-pt екран (місце для тексту 215 pt) і
+     обрізається (Chrome: 229 > 215 pt). Footnote sans + tabular-nums - 177 pt, влазить; open-questions #35, #43. */
+  font: var(--fw-footnote) var(--fs-footnote)/var(--lh-footnote) var(--font-sans); /* lh 18: з lh 1 overflow:hidden зрізав виносні "y", "p" */
+  font-variant-numeric: tabular-nums;
+}
+.session-chip__chevron { color: var(--label-2); margin-left: var(--sp-1); }
+.session-chip__chevron.icon { width: var(--icon-sm); height: var(--icon-sm); }
+
+/* ---------- ListGroup / ListRow (DEV-DOC: chevron, value, toggle, menu; скріни 07, 11, 09) ---------- */
+.list-section { padding: 0 var(--list-inset); }
+.list-section + .list-section { margin-top: var(--sp-3); }
+.list-section__header, .list-section__footer { margin: 0; }
+.list-section__header {
+  padding: 0 var(--row-pad-x) var(--sp-1);
+  color: var(--label-2);
+  font: var(--fw-footnote) var(--fs-footnote)/var(--lh-footnote) var(--font-sans);
+}
+.list-section__footer {
+  padding: var(--sp-1) var(--row-pad-x) 0;
+  color: var(--label-2);
+  font: var(--fw-footnote) var(--fs-footnote)/var(--lh-footnote) var(--font-sans);
+}
+.list-group {
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  overflow: hidden;
+}
+.list-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--row-h);
+  padding: 0 var(--row-pad-x);
+  text-align: left;
+  color: var(--label);
+}
+/* Роздільник: від початку тексту до правого краю (iOS inset separator) */
+.list-row + .list-row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: var(--row-pad-x);
+  height: var(--hairline);
+  background: var(--separator);
+}
+.list-group--glyphs .list-row + .list-row::before {
+  left: calc(var(--row-pad-x) + var(--row-glyph) + var(--row-pad-x));
+}
+.list-row__glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--row-glyph);
+  height: var(--row-glyph);
+  margin-right: var(--row-pad-x);
+  border-radius: var(--radius-pill);
+  background: var(--fill-2);
+}
+.list-row__glyph > .icon { width: var(--icon-sm); height: var(--icon-sm); }
+.list-row__content {
+  flex: 1;
+  min-width: 0;
+  padding: var(--sp-1) 0;
+}
+.list-row__title { display: block; font: var(--fw-body) var(--fs-body)/var(--lh-body) var(--font-sans); }
+.list-row__subtitle {
+  display: block;
+  color: var(--label-2);
+  font: var(--fw-footnote) var(--fs-footnote)/var(--lh-footnote) var(--font-sans);
+}
+.list-row__value {
+  flex: none;
+  margin-left: var(--sp-1);
+  color: var(--label-2);
+  font: var(--fw-body) var(--fs-body)/var(--lh-body) var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+.list-row__chevron.icon {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  margin-left: var(--sp-1);
+  color: var(--label-2);
+}
+.list-row--menu .list-row__value { color: var(--label); }
+.list-row--menu .list-row__chevron.icon { color: var(--label); }
+
+/* Toggle (iOS 26 switch, скрін 11 [approx]) */
+.toggle {
+  position: relative;
+  flex: none;
+  width: var(--toggle-w);
+  height: var(--toggle-h);
+  margin-left: var(--sp-1);
+  border-radius: var(--radius-pill);
+  background: var(--fill);
+}
+/* hit area 44 */
+.toggle::after {
+  content: "";
+  position: absolute;
+  top: calc((var(--toggle-h) - var(--tap)) / 2);
+  bottom: calc((var(--toggle-h) - var(--tap)) / 2);
+  left: 0; right: 0;
+}
+/* "увімкнено" - шар --toggle-on через opacity (не анімуємо background-color) */
+.toggle__track-on {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--toggle-on);
+  opacity: 0;
+  transition: opacity var(--dur-toggle) var(--ease-out);
+}
+.toggle__knob {
+  position: absolute;
+  top: calc((var(--toggle-h) - var(--toggle-knob-h)) / 2);
+  left: calc((var(--toggle-h) - var(--toggle-knob-h)) / 2);
+  width: var(--toggle-knob-w);
+  height: var(--toggle-knob-h);
+  border-radius: var(--radius-pill);
+  background: var(--white);
+  transition: transform var(--dur-toggle) var(--ease-ios);
+}
+.toggle[aria-checked="true"] .toggle__track-on { opacity: 1; }
+.toggle[aria-checked="true"] .toggle__knob {
+  transform: translateX(calc(var(--toggle-w) - var(--toggle-knob-w) - (var(--toggle-h) - var(--toggle-knob-h))));
+}
+
+/* ---------- Menu (pull-down для ListRow menu; скрін 09) ---------- */
+.menu {
+  position: absolute;
+  z-index: var(--z-popover);
+  width: var(--menu-w);
+  padding: var(--sp-1) 0;
+  border-radius: var(--radius-menu);
+  box-shadow: var(--glass-shadow);
+  transform-origin: top right;
+  transition: opacity var(--dur-popover) var(--ease-out), transform var(--dur-popover) var(--ease-out);
+}
+.menu-layer { z-index: var(--z-popover); }
+/* Меню над рівним фоном: суцільна заливка (surface), без blur; тінь і межа як у тоста на світлому екрані */
+.menu--solid { background: var(--surface); box-shadow: var(--shadow-sm); border: var(--hairline) solid var(--separator); }
+
+/* #71: на екранах з ReviewBar (S06, S07) тост опускається нижче ряду Skip/Done (висота кнопки + запас 8) */
+#app:has(.review-bar) .toast-host { --toast-top: calc(var(--btn-h) + var(--sp-1)); }
+.menu[data-pose="out"] { opacity: 0; transform: scale(var(--popover-scale)); }
+.menu__item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 0 var(--sp-2) 0 var(--sp-1);
+  text-align: left;
+  font: var(--fw-body) var(--fs-body)/var(--lh-body) var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  color: var(--label);
+}
+.menu__check {
+  flex: none;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  margin-right: var(--sp-1);
+}
+.menu__check.icon { visibility: hidden; }
+.menu__item[aria-checked="true"] .menu__check.icon { visibility: visible; }
+
+/* ---------- PageIndicator (S01 і далі M01 "02 / 05" - окремий компонент) ----------
+   Скрін 01-04: ряд крапок, активна - витягнута пігулка. Розміри [approx]; поведінка = UIPageControl. */
+.page-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--dot);
+}
+.page-indicator__dot {
+  flex: none;
+  width: var(--dot);
+  height: var(--dot);
+  margin: 0 var(--sp-half);
+  border-radius: var(--radius-pill);
+  background: var(--label);
+  opacity: var(--dot-inactive-opacity);
+  transition: opacity var(--dur-focus) var(--ease-out);
+}
+/* активна: без анімації ширини (лише transform/opacity) - тримаємо ширину статично, анімується opacity */
+.page-indicator__dot[aria-current="true"] { width: var(--dot-active-w); opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .page-indicator__dot { transition-duration: var(--dur-reduced); } }
+
+/* ---------- Layers (router: screen / sheet / modal / alert / overlay / toast) ---------- */
+.layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.layer--screen, .layer--modal {
+  background: var(--bg);
+  transition: transform var(--dur-push) var(--ease-ios), opacity var(--dur-push) var(--ease-ios);
+}
+.layer--screen[data-pose="right"] { transform: translateX(100%); }
+.layer--screen[data-pose="behind"] { transform: translateX(-30%); }
+/* Затемнення попереднього екрана при push (DEV-DOC "Анімації") */
+.layer--screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--scrim-push);
+  opacity: var(--scrim-o, 0);
+  pointer-events: none;
+  transition: opacity var(--dur-push) var(--ease-ios);
+}
+.layer--screen[data-pose="behind"] { --scrim-o: 1; }
+.layer--modal { z-index: var(--z-modal); transition-duration: var(--dur-modal); }
+.layer--modal[data-pose="below"] { transform: translateY(100%); }
+.layer--overlay { z-index: var(--z-overlay); transition: opacity var(--dur-alert) var(--ease-out); }
+.layer--overlay[data-pose="out"] { opacity: 0; }
+.layer.is-dragging, .layer.is-dragging::after, .sheet.is-dragging { transition: none; }
+
+/* Скрол-контейнер екрана (контракт рендеру: data-scroll) */
+.scroll {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ---------- Sheet (DEV-DOC: medium / large detent, grabber, заголовок, Done) ----------
+   ComponentsKit Modal/BottomModalVM: contentPaddings 16, drag to dismiss, hidesOnSwipe;
+   DEV-DOC: виїзд 400 мс, скрим 30%, закриття drag > 25% висоти; скріни 23, 24 - floating-лист iOS 26. */
+.sheet-layer { z-index: var(--z-sheet); }
+.scrim {
+  position: absolute;
+  inset: 0;
+  opacity: 1;
+  transition: opacity var(--dur-sheet) var(--ease-ios);
+}
+.sheet-layer > .scrim { background: var(--scrim-sheet); }
+.sheet-layer[data-pose="out"] > .scrim { opacity: 0; }
+.sheet {
+  position: absolute;
+  left: var(--sheet-inset);
+  right: var(--sheet-inset);
+  bottom: var(--sheet-inset);
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-card);
+  background: var(--sheet-bg);
+  -webkit-backdrop-filter: var(--sheet-blur);
+  backdrop-filter: var(--sheet-blur);
+  box-shadow: var(--glass-shadow);
+  color: var(--label);
+  transition: transform var(--dur-sheet) var(--ease-ios), opacity var(--dur-sheet) var(--ease-ios);
+  touch-action: none;
+}
+@media (prefers-reduced-transparency: reduce) {
+  .sheet { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+.sheet--medium { height: var(--sheet-medium); }
+.sheet--medium-tall { height: var(--sheet-medium-tall); }
+.sheet--fit { max-height: var(--sheet-fit-max); } /* висота за вмістом (H01: на скріні 23 нижня половина зайнята підписом, якого в нас немає) */
+.sheet--large { top: calc(var(--safe-top) + var(--sheet-inset)); }
+.sheet-layer[data-pose="out"] .sheet { transform: translateY(calc(100% + var(--sheet-inset))); }
+.sheet__grabber {
+  flex: none;
+  width: var(--grabber-w);
+  height: var(--grabber-h);
+  margin: var(--grabber-top) auto 0;
+  border-radius: var(--radius-pill);
+  background: var(--separator);
+}
+.sheet__header {
+  display: flex;
+  align-items: center;
+  flex: none;
+  padding: var(--sp-1) var(--sheet-pad) 0;
+  min-height: calc(var(--tap) + var(--sp-1));
+}
+.sheet__content { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.sheet__title { flex: 1; min-width: 0; margin: 0; }
+.sheet__header > .btn { margin-left: var(--sp-1); }
+.sheet__section-title {
+  margin: 0;
+  padding: 0 0 var(--sp-1);
+  color: var(--label-2);
+  font: var(--fw-footnote) var(--fs-footnote)/var(--lh-footnote) var(--font-sans);
+}
+.sheet__subtitle { margin: 0; padding: 0 var(--sheet-pad); color: var(--label-2); }
+.sheet__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--sheet-pad) var(--sheet-pad) calc(var(--sheet-pad) + var(--safe-bottom));
+  touch-action: pan-y;
+}
+
+/* ---------- Alert (DEV-DOC: 2 кнопки, системний стиль iOS 26; скрін 05) ----------
+   ComponentsKit Alert/Models/AlertVM.swift: center modal size .small (300), padding 16,
+   buttonsSpacing 12, overlay dimmed .35, transition .fast 0.2, кнопки full-width 44;
+   вертикальне розташування при > 2 кнопках (AlertButtonsOrientationCalculator).
+   Вирівнювання тексту ліворуч і капсульні кнопки - скрін 05 (iOS 26). */
+.alert-layer {
+  z-index: var(--z-alert);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-4);
+}
+.alert-layer > .scrim { background: var(--scrim-alert); transition-duration: var(--dur-alert); }
+.alert-layer[data-pose="out"] > .scrim { opacity: 0; }
+.alert {
+  position: relative;
+  width: 100%;
+  max-width: var(--alert-w);
+  padding: var(--alert-pad);
+  border-radius: var(--radius-alert);
+  box-shadow: var(--glass-shadow);
+  color: var(--label);
+  transition: opacity var(--dur-alert) var(--ease-out), transform var(--dur-alert) var(--ease-out);
+}
+.alert-layer[data-pose="out"] .alert { opacity: 0; transform: scale(var(--modal-scale)); } /* RECIPES "Modal" */
+.alert__title { margin: 0; }
+.alert__message { margin: var(--sp-1) 0 0; color: var(--label-2); }
+.alert__actions { display: flex; margin-top: var(--alert-pad); }
+.alert__actions--vertical { flex-direction: column; }
+.alert__btn {
+  flex: 1;
+  min-width: 0;
+  height: var(--tap);
+  padding: 0 var(--sp-1);
+  border-radius: var(--radius-pill);
+  background: var(--fill);
+  color: var(--label);
+  font: var(--fw-body) var(--fs-body)/1 var(--font-sans);
+}
+.alert__actions:not(.alert__actions--vertical) .alert__btn + .alert__btn { margin-left: var(--alert-btn-space); }
+.alert__actions--vertical .alert__btn + .alert__btn { margin-top: var(--alert-btn-space); }
+.alert__btn--preferred { font-weight: var(--fw-headline); }
+.alert__btn--destructive { color: var(--danger); }
+
+/* ---------- Toast (DEV-DOC: info, error; зверху, 2.5 с) ----------
+   ShipSwift SWComponent/Feedback/SWAlert.swift: Capsule, ultraThinMaterial, border 0.5,
+   padding h16 v10, footnote, іконка-текст 6, .padding(.top, 40). Виїзд зверху 250 мс - DEV-DOC. */
+.toast-host {
+  position: absolute;
+  z-index: var(--z-toast);
+  top: calc(var(--safe-top) + var(--toast-top));
+  left: var(--sp-2);
+  right: var(--sp-2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+.toast {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: var(--toast-pad-y) var(--toast-pad-x);
+  border-radius: var(--radius-pill);
+  color: var(--label);
+  font: var(--fw-footnote) var(--fs-footnote)/var(--lh-footnote) var(--font-sans);
+  pointer-events: auto;
+  transition: opacity var(--dur-toast) var(--ease-out), transform var(--dur-toast) var(--ease-out);
+}
+.toast[data-pose="out"] { opacity: 0; transform: translateY(-100%); }
+.toast > .icon { width: var(--icon-sm); height: var(--icon-sm); margin-right: var(--sp-icon-text); }
+.toast__text { flex: 1; min-width: 0; }
+.toast--error { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 60%, transparent); }
+/* Світлий екран: під тостом рівний фон -> суцільна заливка, не скло (CLAUDE.md 1.7). Темні екрани лишають chrome-скло. */
+.toast[data-theme="light"] {
+  background: var(--surface);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: var(--shadow-sm);
+  border-color: var(--separator);
+}
+.toast--error[data-theme="light"] { border-color: color-mix(in srgb, var(--danger) 60%, transparent); }
+.toast__action {
+  position: relative;
+  flex: none;
+  margin-left: var(--sp-1);
+  color: var(--label);
+  font: var(--fw-headline) var(--fs-footnote)/var(--lh-footnote) var(--font-sans);
+}
+.toast__action::after {
+  content: "";
+  position: absolute;
+  left: calc(-1 * var(--sp-1));
+  right: calc(-1 * var(--sp-1));
+  top: calc((var(--lh-footnote) - var(--tap)) / 2);
+  bottom: calc((var(--lh-footnote) - var(--tap)) / 2);
+}
+
+/* ---------- Reduced motion: усе -> fade 150 мс (DEV-DOC) ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .layer--screen, .layer--modal, .layer--screen::after, .layer--overlay,
+  .sheet, .scrim, .alert, .toast, .menu, .toggle__knob, .toggle__track-on {
+    transition-duration: var(--dur-reduced) !important;
+    transition-timing-function: ease !important;
+  }
+  .layer--screen[data-pose], .layer--modal[data-pose],
+  .sheet-layer[data-pose="out"] .sheet,
+  .alert-layer[data-pose="out"] .alert,
+  .toast[data-pose="out"], .menu[data-pose="out"] { transform: none; }
+  .layer--screen[data-pose="right"], .layer--modal[data-pose="below"],
+  .sheet-layer[data-pose="out"] .sheet { opacity: 0; }
+  .layer--screen[data-pose="behind"] { opacity: 1; }
+}
+
+/* ---------- Viewfinder (S04; далі S05) ----------
+   Скріни 22, 06, 30, 31: заокруглений видошукач, сітка 3x3, жовта лінія рівня, "..." справа зверху,
+   бейдж фокусної знизу по центру. Розмір - за aspect ratio: вписується в контейнер-предок з
+   container-type: size (S04 .cam__stage) через cqw/cqh, щоб 9:16 не вилазив за екран.
+   Висота анімується через width/height (DEV-DOC: 300 мс на зміну aspect): scale() спотворив би
+   радіус 36 і сітку; це один елемент, внутрішні шари абсолютні, тож reflow дешевий.
+   Тема: data-theme="dark" на .vf - скло, лейбли й кнопки всередині білі на фото (екран світлий). */
+.vf {
+  position: relative;
+  flex: none;
+  width: min(100cqw, calc(100cqh * var(--vf-r, .75)));
+  height: min(100cqh, calc(100cqw / var(--vf-r, .75)));
+  transition: width var(--dur-aspect) var(--ease-ios), height var(--dur-aspect) var(--ease-ios);
+}
+.vf__clip {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--radius-viewfinder);
+  background: var(--bg);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+/* Заглушка камери (нейтральна, без фото: Unsplash недоступний - assets/CREDITS.md "Placeholders") */
+.vf__media {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 80% at 50% 30%, var(--fill-raised), var(--surface) 55%, var(--bg));
+  filter: var(--vf-look, brightness(1)) brightness(calc(1 + var(--vf-exp, 0) * var(--exposure-range)));
+  transform: scale(var(--vf-zoom, 1)) scaleX(var(--vf-mirror, 1));
+  transition: transform var(--dur-aspect) var(--ease-ios);
+}
+.vf__video { display: none; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.vf__media.has-stream .vf__video { display: block; }
+.vf__grid { position: absolute; inset: 0; pointer-events: none; opacity: var(--vf-grid-opacity); }
+.vf[data-grid="false"] .vf__grid { display: none; }
+.vf__line { position: absolute; background: var(--white); }
+.vf__line--v1, .vf__line--v2 { top: 0; bottom: 0; width: var(--hairline); }
+.vf__line--h1, .vf__line--h2 { left: 0; right: 0; height: var(--hairline); }
+.vf__line--v1 { left: 33.333%; } .vf__line--v2 { left: 66.666%; }
+.vf__line--h1 { top: 33.333%; } .vf__line--h2 { top: 66.666%; }
+.vf__level {
+  position: absolute;
+  left: 0; right: 0; top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.vf[data-level="false"] .vf__level { display: none; }
+.vf__level-seg {
+  width: var(--sp-3); /* [approx] довжина бічного відрізка рівня - скрін 22 */
+  height: var(--focus-ring-w);
+  margin: 0 var(--sp-half);
+  background: var(--white);
+  opacity: var(--vf-grid-opacity);
+}
+.vf__level-seg--on { width: var(--sp-5); /* [approx] */ background: var(--focus); opacity: 1; } /* жовтий, коли рівно (DEV-DOC) */
+.vf__more {
+  position: absolute;
+  top: calc(var(--sp-1) + var(--sp-half)); /* [approx] 12 = 8 + 4: відступ "..." від кутів видошукача, скрін 22 */
+  right: calc(var(--sp-1) + var(--sp-half));
+}
+.vf .glass, .vf .icon-btn--glass { box-shadow: var(--glass-shadow-inset); }
+.vf__pose, .vf__pose-panel { display: none; } /* слот під pose guide (Phase 6, S11): тут нічого не будуємо */
+
+/* Рамка фокусу і сонечко експозиції (скрін 31; DEV-DOC: scale 1.4 -> 1 за 250 мс, зникає через 1.5 с) */
+.vf__focus {
+  position: absolute;
+  width: var(--focus-frame);
+  height: var(--focus-frame);
+  color: var(--focus);
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(var(--focus-scale-from));
+  transition: opacity var(--dur-focus) var(--ease-out), transform var(--dur-focus) var(--ease-ios);
+}
+.vf__focus.is-on { opacity: 1; transform: none; }
+.vf__focus-frame { position: absolute; inset: 0; border: var(--focus-ring-w) solid var(--focus); }
+.vf__focus-sun {
+  position: absolute;
+  left: calc(100% + var(--sp-1));
+  top: 50%;
+  margin-top: calc(var(--icon) / -2);
+  transform: translateY(calc(var(--vf-exp, 0) * -1 * var(--sp-4))); /* [approx] хід сонечка 32 pt на одиницю експозиції (-1..1), скрін 31 */
+}
+
+/* ---------- FocalBadge (скрін 22: темна пілюля "26" знизу по центру видошукача) ---------- */
+.focal-badge {
+  position: absolute;
+  left: 0; right: 0;
+  bottom: var(--sp-2);
+  margin: 0 auto;
+  width: fit-content;
+  height: var(--btn-h-sm);
+  padding: 0 var(--sp-2);
+  border-radius: var(--radius-pill);
+  color: var(--label);
+  font: var(--fw-button-sm) var(--fs-button-sm)/1 var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.focal-badge::after { /* hit area 44 для візуально 36-pt бейджа (HIG) */
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  top: calc((var(--btn-h-sm) - var(--tap)) / 2);
+  bottom: calc((var(--btn-h-sm) - var(--tap)) / 2);
+}
+
+/* ---------- FocalButton (рішення #17, скрін 31: окремі кола 26 / 35 / 50, вибраний без заливки) ----------
+   Не SegmentChip-група: кола стоять окремо, невибрані - темна заливка з білим числом,
+   вибраний - лише жирне число. Hit area 44, диск 36 (ComponentsKit ButtonVM small). */
+.focal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap);
+  height: var(--tap);
+}
+.focal-btn__disc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--btn-h-sm);
+  height: var(--btn-h-sm);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--label) 70%, var(--bg)); /* [approx] скрін 31: темно-сірий диск */
+  color: var(--bg);
+  font: var(--fw-button-sm) var(--fs-button-sm)/1 var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+.focal-btn[aria-checked="true"] .focal-btn__disc {
+  background: transparent;
+  color: var(--label);
+  font-weight: var(--fw-headline);
+}
+
+/* SegmentChip: підсвічений крок coach mark (скрін 21: чорна обвідка навколо Photo Session) */
+.segment-chip[data-spotlight="true"] {
+  position: relative;
+  z-index: calc(var(--z-overlay) + 1);
+  box-shadow: 0 0 0 var(--ring-w) var(--label);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vf, .vf__media, .vf__focus, .focal-badge, .focal-btn__disc {
+    transition-duration: var(--dur-reduced) !important;
+    transition-timing-function: ease !important;
+  }
+  .vf__focus { transform: none; } /* лише fade 150 мс */
+}
+
+/* =============================================================================
+   S05 Session capture: компоненти зйомки (DEV-DOC "### S05 Session capture"; скріни 34, 35).
+   Скріни на чорному фоні без видимої рамки: екран ≈ x 18..278 px (0.69 px/pt). Виміри - [approx].
+   ============================================================================= */
+
+/* Утиліта: текст лише для VoiceOver (aria-live S05) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- ProgressPanel (ProgressBar-заливка на всю панель) ----------
+   Скріни 34/35: біла заливка на всю висоту блоку "тег + лічильник + цифра", росте зліва направо
+   за час до кадру (34: 3 з 15 с ≈ 22% ширини; 35: ≈ 49%), кути прямі, на всю ширину екрана.
+   Текст над заливкою інвертується: на скріні 35 цифра "2" на межі заливки - ліва частина чорна.
+   Модель - ComponentsKit ProgressBar (Models/ProgressBarVM.swift: progress = (value - min) / (max - min),
+   clamp 0..1; cornerRadius .none); заливка - лише transform: scaleX (DEV-DOC "Анімації"), без transition:
+   значення приходить щокадрово з rAF. Інверсія - mix-blend-mode: difference в ізольованій групі
+   (у Figma - blend mode Difference на шарі тексту). */
+.progress-panel {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--bg);
+}
+.progress-panel__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--white);
+  transform-origin: left center;
+  transform: scaleX(0);
+  will-change: transform;
+}
+.progress-panel__ink {
+  position: relative;
+  mix-blend-mode: difference;
+}
+
+/* ---------- Countdown (цифра відліку 96, tabular-nums; пульсація 3-2-1 - JS, WAAPI transform) ----------
+   DEV-DOC S05 "цифра відліку 96 pt", "Анімації": scale 1 -> --pulse-scale -> 1 за --dur-pulse;
+   логіка секунд - як ComponentsKit Countdown/Manager/CountdownManager.swift (max(0, ...), стоп на нулі),
+   у нас Math.ceil залишку від performance.now(), мінімум 1 (0 не показуємо - у цю мить кадр). */
+.countdown { display: flex; justify-content: center; }
+.countdown__digit { display: block; color: var(--label); will-change: transform; }
+/* #49: останні 3 с - цифра ≈ 160 pt статичним scale (бокс 96 не росте: панель і видошукач не стрибають) */
+[data-big="true"] .countdown__digit { transform: scale(var(--countdown-big-scale)); }
+
+/* BeatPulse (#49): біле кільце + легка заливка на весь екран, opacity 0 -> 1 -> 0 на кожну секунду 3-2-1 (JS, WAAPI).
+   Поверх контенту, але поза ізольованою групою ProgressPanel - інверсія цифри (difference) не ламається. */
+.beat-pulse {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: var(--beat-tint);
+  box-shadow: inset 0 0 0 var(--beat-ring-w) var(--white);
+  opacity: 0;
+  pointer-events: none;
+}
+.beat-pulse.is-static { opacity: 1; } /* debug-кадр (frame=...) показує пік пульсації */
+
+/* ---------- StopButton (скрін 34/35: біле кільце + червоний заокруглений квадрат) ----------
+   Розмір - --start-btn 72 (кільце ≈ 52 px ≈ 75 pt; те саме місце, що кнопка старту S04 - DEV-DOC 72x72),
+   кільце 3, квадрат 24, радіус квадрата 4 - [approx]; колір - --rec (DEV-DOC "Токени": кнопка Stop).
+   Кільце - inset box-shadow, а не border: не змінює бокс (Figma: inside stroke). */
+.stop-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--start-btn);
+  height: var(--start-btn);
+  border-radius: var(--radius-pill);
+  box-shadow: inset 0 0 0 var(--stop-ring-w) var(--white);
+}
+.stop-btn__square {
+  display: block;
+  width: var(--stop-square);
+  height: var(--stop-square);
+  border-radius: var(--radius-stop-square);
+  background: var(--rec);
+}
+
+/* ---------- ShotThumb (мініатюра останнього кадру; порожня - іконка photo на --fill) ----------
+   Скрін 34 (порожня: сіра плитка з іконкою фото), 35 (кадр); 48 [approx] (≈ 32 px), радіус --radius-sm
+   як ThumbTile S04. Не тапабельна (DEV-DOC S05 не дає дії), тому без hit area.
+   --fly: копія, що летить з видошукача в плитку (WAAPI transform/opacity, --dur-thumb-fly, --ease-ios). */
+.shot-thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--thumb-sm);
+  height: var(--thumb-sm);
+  border-radius: var(--radius-sm);
+  background: var(--fill);
+  color: var(--label-2);
+  overflow: hidden;
+}
+.shot-thumb__img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.shot-thumb--fly {
+  position: absolute;
+  z-index: var(--z-overlay);
+  object-fit: cover;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* ---------- CaptureFlash (DEV-DOC "Кадр": білий спалах на весь екран 120 мс; JS - opacity 1 -> 0) ---------- */
+.capture-flash {
+  position: absolute;
+  inset: 0;
+  z-index: calc(var(--z-overlay) + 1);
+  background: var(--white);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- Viewfinder --capture (S05: зменшений, без сітки/рівня/фокусу) і NOTICE ---------- */
+.vf--capture .vf__clip { touch-action: auto; }
+/* Повідомлення поверх видошукача (S05 paused). Патерн - S04 off-стан (скрін 06: текст по центру видошукача);
+   над живим кадром - затемнення --notice-scrim замість рівного фону */
+.vf__notice {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--sp-3);
+  background: var(--notice-scrim);
+  color: var(--white);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .stop-btn { transition: transform var(--dur-press) var(--ease-out); }
+  .stop-btn:active { transform: scale(var(--press-scale)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stop-btn { transition: opacity var(--dur-reduced) ease; }
+  .stop-btn:active { opacity: .6; } /* [approx], як решта press-feedback */
+}
+
+/* =============================================================================
+   Phase 4: S06 Review / S07 Your keepers (скріни 36, 37, 38). Індекс і джерела - docs/design-system/components.md.
+   ============================================================================= */
+
+/* ---------- ReviewBackdrop (фон = розмита поточна картка; DEV-DOC S06, скрін 38) ---------- */
+.review-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; background: var(--bg); pointer-events: none; }
+.review-bg__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(var(--review-bg-blur));
+  transform: scale(var(--review-bg-scale));
+}
+.review-bg::after { content: ""; position: absolute; inset: 0; background: var(--review-bg-scrim); }
+
+/* ---------- ReviewBar (Skip · тег · Done; скрін 36/38) ----------
+   Три колонки 1fr / auto / 1fr: тег лишається по центру, хоч Skip і Done різної ширини. */
+.review-bar {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: var(--safe-top) var(--sp-2) 0; /* скрін 36: Skip ≈ 17 pt від краю */
+}
+.review-bar > :first-child { justify-self: start; }
+.review-bar > :last-child { justify-self: end; }
+.review-bar__tag { color: var(--label-2); text-align: center; }
+
+/* ---------- SwipeCard (скріни 36, 37; DEV-DOC "SwipeCard: idle, dragging, keep, drop") ----------
+   Положення в стопці задає data-depth (0 - верхня, 1, 2 - позаду) через transform + затемнення ::after;
+   під час drag transform пише JS (inline), зміна depth і пружина назад анімуються transition.
+   data-state="out" - картка, що вилітає (WAAPI), поза стопкою. Написи Keep / Drop - --keep-o / --drop-o (0..1) від JS. */
+.swipe-card {
+  --sc-x: 0px;
+  --sc-r: 0deg;
+  --sc-dim: 0;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--radius-viewfinder);
+  background: var(--fill);
+  box-shadow: var(--review-card-shadow);
+  transform: translate(var(--sc-x), 0) rotate(var(--sc-r));
+  transition: transform var(--dur-swipe) var(--ease-ios);
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+}
+.swipe-card[data-depth="0"] { z-index: 3; }
+.swipe-card[data-depth="1"] { --sc-x: var(--review-stack-dx-1); --sc-r: var(--review-stack-rot-1); --sc-dim: var(--review-stack-dim-1); z-index: 2; }
+.swipe-card[data-depth="2"] { --sc-x: var(--review-stack-dx-2); --sc-r: var(--review-stack-rot-2); --sc-dim: var(--review-stack-dim-2); z-index: 1; }
+.swipe-card[data-state="out"] { z-index: 4; pointer-events: none; transition: none; }
+.swipe-card.is-dragging { transition: none; cursor: grabbing; }
+.swipe-card::after { content: ""; position: absolute; inset: 0; z-index: 0; background: var(--black); opacity: var(--sc-dim); pointer-events: none; }
+.swipe-card__img { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; -webkit-user-drag: none; }
+.swipe-card__badge { position: absolute; z-index: 1; top: var(--sp-2); left: var(--sp-2); }
+.swipe-card:not([data-depth="0"]) .swipe-card__badge { visibility: hidden; }
+.swipe-card__stamp {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--radius-pill);
+  background: var(--badge-media-bg); /* темна підкладка: колір напису читається на будь-якому фото */
+  font: var(--fw-large-title) var(--fs-large-title)/var(--lh-large-title) var(--font-sans);
+  letter-spacing: var(--ls-display);
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.swipe-card__stamp--keep {
+  color: var(--toggle-on);
+  box-shadow: inset 0 0 0 var(--stamp-ring-w) var(--toggle-on);
+  transform: translate(-50%, -50%) rotate(calc(-1 * var(--stamp-rot)));
+  opacity: var(--keep-o, 0);
+}
+.swipe-card__stamp--drop {
+  color: var(--rec);
+  box-shadow: inset 0 0 0 var(--stamp-ring-w) var(--rec);
+  transform: translate(-50%, -50%) rotate(var(--stamp-rot));
+  opacity: var(--drop-o, 0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .swipe-card { transition: none; }
+  .swipe-card__stamp--keep,
+  .swipe-card__stamp--drop { transform: translate(-50%, -50%); }
+}
+
+/* ---------- IconButton --lg (кругла Undo / Drop / Keep; скрін 36/38) ---------- */
+.icon-btn--lg { width: var(--tap-lg); height: var(--tap-lg); }
+.icon-btn--keep { color: var(--toggle-on); }
+.icon-btn--drop { color: var(--rec); }
+
+/* ---------- CountBadge (скрін 38: бейдж кількості на стопці мініатюр) ----------
+   Скрін - червоний; у нас біла таблетка з чорним числом: число 13 pt на --accent / --rec має контраст ≈ 3:1
+   (brand.md забороняє дрібний текст на акцентній заливці), біле на чорному - найчитабельніше. */
+.count-badge {
+  position: absolute;
+  z-index: 1;
+  top: calc(-1 * var(--sp-1));
+  right: calc(-1 * var(--sp-1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--count-badge);
+  height: var(--count-badge);
+  padding: 0 var(--sp-1);
+  border-radius: var(--radius-pill);
+  background: var(--label);
+  color: var(--bg);
+  font: var(--fw-headline) var(--fs-footnote)/1 var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- KeepersCard (скрін 38: glass-картка зі стопкою мініатюр, заголовком, підписом і двома кнопками) ---------- */
+.keepers-card {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: calc(100% - 2 * var(--review-card-inset));
+  padding: var(--sp-3);
+  border-radius: var(--radius-alert); /* [approx] скрін 38: радіус картки ≈ 22 px ≈ 32 pt = --radius-alert (той самий вимір) */
+  text-align: center;
+}
+.keepers-card__stack {
+  position: relative;
+  width: calc(var(--keepers-thumb-w) + 2 * var(--keepers-thumb-dx));
+  height: calc(var(--keepers-thumb-w) * 4 / 3);
+  margin: var(--sp-1) 0 var(--sp-2);
+}
+.keepers-card__thumb {
+  position: absolute;
+  top: 0;
+  width: var(--keepers-thumb-w);
+  height: calc(var(--keepers-thumb-w) * 4 / 3);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--fill);
+  box-shadow: var(--review-card-shadow);
+}
+.keepers-card__thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.keepers-card__thumb--back { left: 0; transform: rotate(calc(-1 * var(--keepers-thumb-rot))); }
+.keepers-card__thumb--front { right: 0; transform: rotate(var(--keepers-thumb-rot)); }
+.keepers-card__stack[data-count="1"] .keepers-card__thumb--front { right: var(--keepers-thumb-dx); }
+.keepers-card__thumb--empty { right: var(--keepers-thumb-dx); display: flex; align-items: center; justify-content: center; color: var(--label-2); }
+.keepers-card__title { margin: 0; color: var(--label); }
+.keepers-card__summary { margin: var(--sp-half) 0 0; color: var(--label-2); }
+.keepers-card__actions { width: 100%; margin-top: var(--sp-3); }
+.keepers-card__actions > .btn + .btn { margin-top: var(--sp-1); }
+
+/* =============================================================================
+   Phase 3: листи H01-H04. Індекс і джерела - docs/design-system/components.md.
+   ============================================================================= */
+
+/* ---------- Badge (ShipSwift SWComponent/Display/SWStatusBadge.swift) ----------
+   Capsule, padding h10 v4, tint-заливка 18% + обведення 0.5 tint 35%. Текст - mono caption
+   (copy.H03.soonBadge / H04.badge: регістр задає CSS).
+   neutral - над рівною поверхнею (Soon); plus - над фото: темне скло (CLAUDE.md 1.7), білий текст,
+   замок --accent (brand.md: дрібний текст на акцентній заливці заборонений; акцентний текст на
+   довільному фото теж не читається - перевірено на PNG H04). */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  padding: var(--badge-pad-y) var(--badge-pad-x);
+  border-radius: var(--radius-pill);
+  font: var(--fw-mono-caption) var(--fs-mono-caption)/var(--lh-mono-caption) var(--font-mono);
+  letter-spacing: var(--ls-mono-caption);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.badge > .icon { width: var(--icon-xs); height: var(--icon-xs); margin-right: var(--sp-half); }
+.badge--neutral {
+  color: var(--label-2);
+  background: color-mix(in srgb, var(--label-2) var(--badge-tint-bg), transparent);
+  border: var(--hairline) solid color-mix(in srgb, var(--label-2) var(--badge-tint-stroke), transparent);
+}
+.badge--plus {
+  color: var(--white);
+  background: var(--badge-media-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: var(--hairline) solid var(--glass-border-dark);
+}
+.badge--plus > .icon { color: var(--accent); } /* бренд-акцент - замок; текст білий, бо фото під бейджем довільне */
+
+/* ---------- Carousel (горизонтальна стрічка зі scroll-snap; H02 пресети, H04 стилі) ----------
+   skill swiftui-layout-components: ScrollView(.horizontal) + LazyHStack (у SwiftUI - .scrollTargetBehavior).
+   Стрічка виходить за padding листа до його країв (скрін 24/25: картки обрізані краєм листа).
+   Тач - нативний скрол; миша - js/snap-scroll.js (drag + проєкція імпульсу, apple-design §6). */
+.carousel {
+  position: relative;
+  display: flex;
+  margin: 0 calc(-1 * var(--sheet-pad));
+  padding: 0 0 0 var(--sheet-pad); /* праве поле - ::after нижче */
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 var(--sheet-pad);
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  touch-action: pan-x;
+  cursor: grab;
+}
+.carousel::-webkit-scrollbar { display: none; }
+.carousel > * { flex: none; scroll-snap-align: start; }
+.carousel > * + * { margin-left: var(--sp-1); }
+/* --center: активний елемент по центру (H04, скрін 26) - бічні поля = половина вільного місця */
+/* бічні поля в cqw самої стрічки: % у padding рахувався б від батька (без виходу за padding листа) */
+.carousel--center { container-type: inline-size; padding: 0; scroll-padding: 0; }
+.carousel--center > * { scroll-snap-align: center; }
+.carousel--center > :first-child { margin-left: calc(50cqw - var(--look-card-w) / 2); }
+.carousel.is-dragging { cursor: grabbing; }
+/* після стрічки - фантомний відступ, щоб остання картка мала праве поле (overflow ігнорує padding-right) */
+.carousel::after { content: ""; flex: none; width: var(--sheet-pad); }
+.carousel--center::after { width: calc(50cqw - var(--look-card-w) / 2); }
+
+/* ---------- PresetCard (DEV-DOC "Компоненти": default / selected (галочка); скріни 24, 25) ----------
+   Фото-фон (поки заглушка data-photo-placeholder), назва зверху зліва, "10s · 20 · 2s" знизу (mono).
+   data-theme="dark" на картці: білий текст і темна заглушка незалежно від теми листа. */
+.preset-card {
+  position: relative;
+  display: flex; /* button центрує вміст по вертикалі - flex ставить назву зверху (скрін 24) */
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: var(--preset-card-w);
+  height: var(--preset-card-h);
+  padding: var(--photo-pad);
+  border-radius: var(--radius-photo);
+  overflow: hidden;
+  isolation: isolate;
+  text-align: left;
+  color: var(--label);
+}
+.preset-card__media {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--photo-scrim), radial-gradient(120% 90% at 30% 20%, var(--fill-raised), var(--surface) 60%, var(--bg));
+}
+.preset-card__name {
+  display: block;
+  padding-right: var(--icon);
+  font: var(--fw-headline) var(--fs-headline)/var(--lh-headline) var(--font-sans);
+}
+.preset-card__values {
+  position: absolute;
+  left: var(--photo-pad);
+  bottom: var(--photo-pad);
+  font: var(--fw-mono-caption) var(--fs-mono-caption)/var(--lh-mono-caption) var(--font-mono);
+  font-variant-numeric: tabular-nums; /* без uppercase: "10s" лишається "10s" */
+}
+.preset-card__check.icon {
+  position: absolute;
+  top: calc(var(--photo-pad) - var(--sp-half));
+  right: calc(var(--photo-pad) - var(--sp-half));
+  opacity: 0;
+  transform: scale(var(--popover-scale));
+  transition: opacity var(--dur-press) var(--ease-out), transform var(--dur-press) var(--ease-out);
+}
+.preset-card[aria-checked="true"] .preset-card__check.icon { opacity: 1; transform: none; }
+
+/* ---------- LookCard (DEV-DOC "Компоненти": free / locked (Plus); скрін 26) ----------
+   Те саме базове фото з CSS-фільтром стилю (--look-filter), назва під карткою; центральна
+   (aria-checked) - повний розмір і назва в pill (скрін 26: назва вибраного в сірій капсулі),
+   решта - scale --look-card-dim. Locked у free - Badge plus у куті. */
+.look-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: var(--look-card-w);
+  color: var(--label);
+}
+.look-card__frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: var(--look-card-ratio);
+  border-radius: var(--radius-photo);
+  overflow: hidden;
+  isolation: isolate;
+  transform: scale(var(--look-s, 1));
+  transition: transform var(--dur-aspect) var(--ease-ios);
+}
+.look-card[aria-checked="false"] { --look-s: var(--look-card-dim); }
+.look-card__media {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--ph-look);
+  filter: var(--look-filter, none);
+}
+.look-card__badge { position: absolute; top: var(--photo-pad); right: var(--photo-pad); }
+.look-card__label {
+  margin-top: var(--sp-1);
+  padding: var(--badge-pad-y) var(--badge-pad-x);
+  border-radius: var(--radius-pill);
+  color: var(--label-2);
+  font: var(--fw-mono-caption) var(--fs-mono-caption)/var(--lh-mono-caption) var(--font-mono);
+  letter-spacing: var(--ls-mono-caption);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.look-card[aria-checked="true"] .look-card__label { background: var(--fill); color: var(--label); }
+@media (prefers-reduced-motion: no-preference) {
+  .look-card:active .look-card__frame { transform: scale(calc(var(--look-s, 1) * var(--press-scale))); transition-duration: var(--dur-press); }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* розмір нецентральних лишається, але без руху: зміна миттєва, лише fade галочки (DEV-DOC: reduce -> fade 150 мс) */
+  .look-card__frame, .preset-card__check.icon { transition: opacity var(--dur-reduced) ease; }
+  .preset-card__check.icon { transform: none; }
+  .look-card:active .look-card__frame, .preset-card:active { opacity: .6; }
+}
+
+/* ---------- WheelPicker (H03; PRD FR-3.2) ----------
+   Немає готового компонента в external-kits/skills: [approx] за iOS UIPickerView - рядок 32,
+   5 видимих рядків, вибраний по центру на спільній сірій смузі (multi-component), рядки
+   зникають до країв (маска). Одиниця стоїть праворуч від числа, як у таймері iOS Clock.
+   Прокрутка - scroll-snap (тач/колесо), миша - drag (js/snap-scroll.js), клавіші - стрілки. */
+.wheel-set__labels { display: flex; padding-bottom: var(--sp-1); }
+.wheel-set__label { flex: 1; min-width: 0; margin: 0; text-align: center; color: var(--label-2); }
+.wheel-set__wheels {
+  position: relative;
+  display: flex;
+  height: calc(var(--wheel-row-h) * var(--wheel-rows));
+}
+.wheel-set__wheels::before { /* смуга вибору */
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  top: calc(var(--wheel-row-h) * (var(--wheel-rows) - 1) / 2);
+  height: var(--wheel-row-h);
+  border-radius: var(--radius-sm);
+  background: var(--fill);
+  pointer-events: none;
+}
+.wheel {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  -webkit-mask-image: linear-gradient(180deg, transparent, var(--black) 35%, var(--black) 65%, transparent);
+  mask-image: linear-gradient(180deg, transparent, var(--black) 35%, var(--black) 65%, transparent);
+}
+.wheel__scroll {
+  position: relative;
+  height: 100%;
+  padding: calc(var(--wheel-row-h) * (var(--wheel-rows) - 1) / 2) 0;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  touch-action: pan-y;
+  outline: none;
+  cursor: grab;
+}
+.wheel__scroll::-webkit-scrollbar { display: none; }
+.wheel__scroll.is-dragging { cursor: grabbing; }
+.wheel__scroll:focus-visible { box-shadow: inset 0 0 0 var(--ring-w) var(--label-2); border-radius: var(--radius-sm); }
+.wheel__row {
+  height: var(--wheel-row-h);
+  padding-right: calc(50% + var(--sp-half));
+  scroll-snap-align: center;
+  text-align: right;
+  font: var(--fw-body) var(--fs-wheel)/var(--wheel-row-h) var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  color: var(--label);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.wheel__unit {
+  position: absolute;
+  left: calc(50% + var(--sp-half));
+  top: 50%;
+  transform: translateY(-50%);
+  font: var(--fw-headline) var(--fs-footnote)/1 var(--font-sans);
+  color: var(--label);
+  pointer-events: none;
+}
+
+/* ============================================================================
+   Phase 4: S08 Session gallery, S09 Photo viewer
+   Джерела - docs/design-system/components.md (рядки PhotoGridItem, StatCounter, PhotoPager,
+   IconButton lg, Menu destructive): скріни 39 і 42, ComponentsKit (hit area, press), apple-design §6/§10.
+   ============================================================================ */
+
+/* ---------- StatCounter (лічильник-фільтр: mono-лейбл + число Title 2) ---------- */
+.stat {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: var(--sp-1) 0;
+  color: var(--label-2);
+  text-align: left;
+}
+.stat[aria-selected="true"] { color: var(--label); }
+.stat__value {
+  font: var(--fw-title2) var(--fs-title2)/var(--lh-title2) var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+/* активний фільтр - лінія під лічильником (scaleX: лише transform) */
+.stat::after {
+  content: "";
+  position: absolute;
+  left: 0; right: var(--sp-2); bottom: 0;
+  height: var(--ring-w);
+  border-radius: var(--radius-pill);
+  background: var(--label);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-press) var(--ease-out);
+}
+.stat[aria-selected="true"]::after { transform: scaleX(1); }
+.stat:focus-visible { outline: var(--ring-w) solid var(--label-2); outline-offset: calc(-1 * var(--ring-w)); }
+
+/* ---------- PhotoGridItem (мініатюра 3:4; Badge Top pick зліва зверху, heart solid справа зверху) ----------
+   Проміжок між клітинками - padding клітинки (без gap). Радіусу немає: скрін 42. */
+.pgi {
+  position: relative;
+  display: block;
+  padding: calc(var(--grid-gap) / 2);
+  background: transparent;
+}
+.pgi__frame {
+  position: relative;
+  display: block;
+  aspect-ratio: var(--photo-ratio);
+  overflow: hidden;
+  background: var(--fill);
+}
+.pgi__img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.pgi__frame[data-overlay="true"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--photo-scrim);
+  pointer-events: none;
+}
+.pgi__badge { position: absolute; z-index: 1; top: var(--sp-1); left: var(--sp-1); }
+.pgi__heart.icon {
+  position: absolute;
+  z-index: 1;
+  top: var(--sp-1);
+  right: var(--sp-1);
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  color: var(--white);
+}
+.pgi:focus-visible { outline: var(--ring-w) solid var(--label); outline-offset: calc(-1 * var(--ring-w)); }
+
+/* ---------- PhotoPager (горизонтальна стрічка кадрів зі scroll-snap; поведінка js/snap-scroll.js) ----------
+   skill swiftui-layout-components (ScrollView(.horizontal) + scrollTargetBehavior(.paging)); миша - drag
+   через snapScroll; touch-action: pan-x лишає вертикальні жести JS (свайп вниз = закрити S09). */
+.pager {
+  display: flex;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  touch-action: pan-x;
+  outline: none;
+  cursor: grab;
+}
+.pager::-webkit-scrollbar { display: none; }
+.pager.is-dragging { cursor: grabbing; }
+.pager__page {
+  flex: none;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+.pager__img {
+  display: block;
+  width: 100%;
+  max-height: 100%;
+  aspect-ratio: var(--photo-ratio);
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+}
+
+/* ---------- IconButton lg (S09: glass 56 над фото; hit area ≥ 44) ---------- */
+.icon-btn--lg { width: var(--viewer-btn); height: var(--viewer-btn); }
+
+/* ---------- Menu: деструктивний пункт (Delete session) ---------- */
+.menu__item--destructive { color: var(--danger); }

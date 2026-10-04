@@ -1,0 +1,644 @@
+/* =============================================================================
+   screens.css - оболонка застосунку (рамка, #app), debug-панель, плейсхолдер "not built",
+   демо-роут _components. Стилі конкретних екранів S01-S12 додаються сюди секціями
+   (або локально з поясненням) у їхніх етапах. Лише токени, лише padding/margin.
+   ============================================================================= */
+
+/* ---------- Оболонка: рамка телефону на десктопі ---------- */
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--page-bg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+p, h1, h2, h3 { margin: 0; }
+
+.stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: var(--sp-6);
+}
+.device {
+  position: relative;
+  flex: none;
+  width: var(--device-w);
+  height: var(--device-h);
+  border-radius: var(--radius-device);
+  box-shadow: 0 0 0 var(--frame-bezel) var(--frame-color);
+  overflow: hidden;
+  /* У рамці safe area - фіксовані 50/34 (DEV-DOC "Цільовий вьюпорт") */
+  --safe-top: var(--device-safe-top);
+  --safe-bottom: var(--device-safe-bottom);
+}
+#app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--black);
+}
+
+/* Телефон / рендер (<= 430): повний екран без рамки, safe area з env() або --sim-safe-* */
+@media (max-width: 430px) {
+  html, body { height: 100%; overflow: hidden; }
+  .stage { display: block; height: 100%; min-height: 0; padding: 0; }
+  .device {
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+    --safe-top: max(env(safe-area-inset-top, 0px), var(--sim-safe-top, 0px));
+    --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--sim-safe-bottom, 0px));
+  }
+}
+
+/* ---------- Перемикач стану екрана (поза #app, службовий) ---------- */
+.switcher {
+  position: fixed;
+  z-index: var(--z-debug);
+  top: var(--sp-3);
+  left: var(--sp-3);
+  width: var(--debug-w);
+  padding: var(--sp-2);
+  border: var(--hairline) dashed var(--separator);
+  border-radius: var(--radius-card);
+  background: var(--bg);
+  color: var(--label);
+  font-family: var(--font-mono);
+}
+.switcher__field { display: block; padding-bottom: var(--sp-1); color: var(--label-2); }
+.switcher__field:last-child { padding-bottom: 0; }
+.switcher__select {
+  display: block;
+  width: 100%;
+  min-height: var(--btn-h-sm);
+  margin-top: var(--sp-half);
+  padding: 0 var(--sp-1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--fill);
+  color: var(--label);
+  font: var(--fw-button-sm) var(--fs-button-sm)/1 var(--font-mono);
+}
+@media (max-width: 430px) { .switcher { display: none; } }
+
+/* ---------- Debug-панель (поза #app) ---------- */
+.debug {
+  flex: none;
+  width: var(--debug-w);
+  height: var(--device-h);
+  margin-left: var(--sp-6);
+  border: var(--hairline) dashed var(--separator);
+  border-radius: var(--radius-card);
+  background: var(--bg);
+  color: var(--label);
+  font-family: var(--font-mono);
+  overflow: hidden;
+}
+.debug__scroll { height: 100%; overflow-y: auto; padding: var(--sp-2); }
+.debug__title { padding-bottom: var(--sp-1); color: var(--label); font-weight: var(--fw-headline); }
+.debug__h { padding: var(--sp-2) 0 var(--sp-1); color: var(--label-2); }
+.debug__kv {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--sp-half) 0;
+  font: var(--fw-footnote) var(--fs-footnote)/var(--lh-footnote) var(--font-mono);
+}
+.debug__v { color: var(--label-2); margin-left: var(--sp-1); }
+.debug__actions { display: flex; flex-wrap: wrap; }
+.debug__btn {
+  min-height: var(--btn-h-sm);
+  margin: 0 var(--sp-1) var(--sp-1) 0;
+  padding: 0 var(--sp-2);
+  border-radius: var(--radius-pill);
+  background: var(--fill);
+  font: var(--fw-button-sm) var(--fs-button-sm)/1 var(--font-mono);
+}
+.debug__jump-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  min-height: var(--tap);
+  padding: var(--sp-half) var(--sp-1);
+  border-radius: var(--radius-sm);
+  text-align: left;
+  font: var(--fw-footnote) var(--fs-footnote)/var(--lh-footnote) var(--font-mono);
+}
+.debug__jump-item--sub { padding-left: var(--sp-3); }
+.debug__jump-item.is-current { background: var(--fill); }
+.debug__jump-meta { color: var(--label-2); font-size: var(--fs-mono-caption); }
+.debug__jump-item.is-not-built .debug__jump-meta { color: var(--label); }
+.debug__hint { display: none; padding-top: var(--sp-2); color: var(--label-2); }
+
+@media (max-width: 430px) {
+  .debug {
+    position: fixed;
+    z-index: var(--z-debug);
+    top: var(--sp-6);
+    left: var(--sp-1);
+    right: var(--sp-1);
+    bottom: var(--sp-1);
+    width: auto;
+    height: auto;
+    margin: 0;
+    box-shadow: var(--glass-shadow);
+    display: none;
+  }
+  .debug.is-open { display: block; }
+  .debug__hint { display: block; }
+}
+
+/* ---------- Плейсхолдер "not built" (debug, не UI екрана) ---------- */
+.placeholder--full {
+  height: 100%;
+  background: var(--bg);
+  color: var(--label);
+  padding: var(--safe-top) var(--sp-2) var(--safe-bottom);
+}
+.placeholder__center { display: flex; align-items: center; justify-content: center; height: 100%; }
+.placeholder__card {
+  width: 100%;
+  padding: var(--sp-3) var(--sp-2);
+  border: var(--hairline) dashed var(--label-2);
+  border-radius: var(--radius-card);
+  text-align: center;
+}
+.placeholder__tag { color: var(--label-2); padding-bottom: var(--sp-1); }
+.placeholder__name { padding-top: var(--sp-half); }
+.placeholder__note { padding-top: var(--sp-1); color: var(--label-2); }
+.placeholder__back {
+  min-height: var(--tap);
+  margin-top: var(--sp-2);
+  padding: 0 var(--sp-2);
+  border: var(--hairline) dashed var(--label-2);
+  border-radius: var(--radius-pill);
+  font: var(--fw-button-sm) var(--fs-button-sm)/1 var(--font-mono);
+}
+.placeholder--sheet .sheet__body { display: flex; align-items: center; }
+
+/* ---------- Демо-роут _components ---------- */
+.demo { height: 100%; background: var(--bg); color: var(--label); }
+.demo__scroll { padding: var(--safe-top) 0 var(--safe-bottom); }
+.demo__title { padding: var(--sp-1) var(--sp-2) var(--sp-2); }
+.demo__theme { background: var(--bg); color: var(--label); padding: var(--sp-2) 0 var(--sp-4); }
+.demo__theme[data-theme="light"] { background: var(--bg-grouped); }
+.demo__theme-label { padding: 0 var(--sp-2) var(--sp-1); color: var(--label); }
+.demo__section { padding: var(--sp-2) var(--sp-2) var(--sp-1); }
+.demo__section--flush { padding-left: 0; padding-right: 0; }
+.demo__h { padding-bottom: var(--sp-1); color: var(--label-2); }
+.demo__h--inset { padding-left: var(--sp-2); padding-right: var(--sp-2); }
+.demo__line + .demo__line { padding-top: var(--sp-half); }
+.demo__row { display: flex; flex-wrap: wrap; align-items: center; }
+.demo__row > * { margin: 0 var(--sp-1) var(--sp-1) 0; }
+.demo__row--baseline { align-items: baseline; }
+.demo__row--fill > * { flex: 1; }
+.demo__row--fill > :last-child { margin-right: 0; }
+.demo__stack { padding-bottom: var(--sp-1); }
+.demo__note { padding: var(--sp-1) 0; }
+/* Тест-патерн під склом: смуги з токенів теми, щоб blur було видно (не продуктовий UI) */
+.demo__backdrop {
+  padding: var(--sp-2) var(--sp-2) var(--sp-1);
+  border-radius: var(--radius-card);
+  background: repeating-linear-gradient(45deg, var(--label) 0 var(--sp-1), var(--focus) var(--sp-1) var(--sp-2), var(--bg) var(--sp-2) var(--sp-3));
+}
+.demo__sheet-list .list-section { padding: 0; }
+
+/* ---------- S01 Onboarding (DEV-DOC S01; скріни 01-04) ----------
+   Фон чорний (тема dark). Інсет тексту/кнопки 24 [approx] (скрін 01: ≈ 18 px ≈ 26 pt).
+   Картка 2:3 [approx] скрін 01/02. Фото - заглушка (assets/CREDITS.md "Placeholders"). */
+.s01 {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--safe-top) 0 var(--safe-bottom);
+  background: var(--bg);
+  color: var(--label);
+}
+.s01__header { flex: none; display: flex; justify-content: center; padding: var(--sp-1) 0; }
+.s01__viewport {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none; /* драг мишею не має починати виділення тексту -> pointercancel */
+}
+.s01__track {
+  display: flex;
+  width: 400%;
+  height: 100%;
+  transition: transform var(--dur-push) var(--ease-ios);
+}
+.s01__track.is-dragging { transition: none; }
+/* Reduced motion: замість зсуву - fade 150 мс (неактивні слайди прозорі, трек стрибає миттєво) */
+@media (prefers-reduced-motion: reduce) {
+  .s01__track { transition: none; }
+  .s01__slide { transition: opacity var(--dur-reduced) ease; }
+  .s01__slide[aria-hidden="true"] { opacity: 0; }
+}
+.s01__slide { display: flex; flex-direction: column; flex: 0 0 25%; min-width: 0; height: 100%; }
+.s01__card-area {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--card-pad) 0;
+}
+.s01-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  aspect-ratio: var(--card-ratio);
+  border-radius: var(--radius-card);
+  background: var(--surface); /* photo placeholder: заливка токеном, без зображення */
+  overflow: hidden;
+}
+.s01-card__count { display: block; will-change: transform; }
+.s01__text { flex: none; padding: 0 var(--sp-3); }
+.s01__title { padding-top: var(--sp-1); text-wrap: balance; }
+.s01__controls { flex: none; padding: var(--sp-2) var(--sp-3) var(--sp-1); }
+.s01__cta { padding-top: var(--sp-2); }
+.s01__footnote {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: var(--sp-1);
+}
+.s01__footnote > .icon { margin-right: var(--sp-half); }
+
+/* ---------- S02 Camera pre-permission ---------- */
+.s02 {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--safe-top) 0 var(--safe-bottom);
+  background: var(--bg);
+  color: var(--label);
+}
+.s02__scroll { flex: 1; min-height: 0; overflow-y: auto; padding: var(--sp-4) var(--sp-3) var(--sp-2); text-align: center; }
+.s02__tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tile-hero);
+  height: var(--tile-hero);
+  margin: 0 auto;
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+.s02__tile > .icon--hero { width: var(--icon-hero); height: var(--icon-hero); }
+.s02__title { padding-top: var(--sp-3); }
+.s02__subtitle { padding-top: var(--sp-1); }
+.s02__points { padding-top: var(--sp-4); text-align: left; }
+.s02__actions { flex: none; padding: var(--sp-1) var(--sp-3) var(--sp-1); }
+.s02__actions .btn--text { margin-top: var(--sp-1); }
+.s02__footnote { padding-top: var(--sp-1); text-align: center; }
+
+/* ---------- S04 Camera (DEV-DOC "### S04 Camera (main)"; скріни 22, 06, 21, 30, 31) ---------- */
+.cam {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--safe-top) 0 var(--safe-bottom);
+  background: var(--bg);
+  color: var(--label);
+}
+.cam__header { flex: none; display: flex; align-items: center; height: var(--tap); padding: 0 var(--sp-1); }
+.cam__slot { flex: 1; display: flex; align-items: center; }
+.cam__slot--end { justify-content: flex-end; }
+/* INSPO: текстова кнопка з mono-підписом (скрін 22); розглянуто, лишено локальним: один споживач */
+.cam__inspo { font-family: var(--font-mono); letter-spacing: var(--ls-mono-caption); text-transform: uppercase; }
+
+/* Зона видошукача: container-type: size дає .vf розміри cqw/cqh (вписування за aspect ratio) */
+.cam__stage {
+  flex: 1;
+  min-height: 0;
+  container-type: size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-1) var(--sp-2);
+}
+.cam[data-view="off"] .vf__media,
+.cam[data-view="off"] .vf__grid,
+.cam[data-view="off"] .vf__level { display: none; }
+
+/* Стан off (FR-1.3, скрін 06) */
+.vf__off {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--sp-4);
+  text-align: center;
+  color: var(--label);
+}
+.cam[data-view="off"] .vf__off { display: flex; }
+.vf__off-icon { width: var(--icon-xl); height: var(--icon-xl); margin-bottom: var(--sp-1); color: var(--label-2); }
+.vf__off-text { padding: var(--sp-half) 0 var(--sp-2); color: var(--label-2); }
+
+.cam__panel { position: relative; flex: none; }
+.cam__modes { position: relative; padding: 0 var(--sp-2); transition: opacity var(--dur-focus) var(--ease-out); }
+.cam__modes-row { display: flex; }
+.cam__modes-row > .segment-chip { flex: 1; min-width: 0; }
+.cam__modes-row > .segment-chip + .segment-chip { margin-left: var(--sp-1); }
+
+.cam__controls {
+  display: flex;
+  align-items: center;
+  padding: var(--sp-1) var(--sp-3) 0;
+  transition: opacity var(--dur-focus) var(--ease-out);
+}
+.cam__col { flex: 1; display: flex; align-items: center; justify-content: center; }
+.cam__col--start { justify-content: flex-start; }
+.cam__col--end { justify-content: flex-end; }
+.cam__aspect { font-variant-numeric: tabular-nums; font-size: var(--fs-button-md); }
+.cam__flip .icon { transition: transform var(--dur-aspect) var(--ease-ios); }
+.cam__flip[data-facing="front"] .icon { transform: rotate(180deg); }
+
+/* Ряд 26 / 35 / 50 mm замінює два ряди під видошукачем (скрін 31) */
+.cam.is-focal-open .cam__modes,
+.cam.is-focal-open .cam__controls { opacity: 0; }
+.cam__focals {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(var(--popover-scale));
+  transition: opacity var(--dur-focus) var(--ease-out), transform var(--dur-focus) var(--ease-out);
+}
+.cam.is-focal-open .cam__focals { opacity: 1; pointer-events: auto; transform: none; }
+
+/* Нижній ряд: мініатюра · старт · Look (скрін 22) */
+.cam__bottom {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-2) var(--sp-4);
+}
+.cam__tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--thumb);
+  height: var(--thumb);
+  border-radius: var(--radius-sm);
+  background: var(--fill);
+  color: var(--label-2);
+  overflow: hidden;
+}
+.cam__thumb-img { width: 100%; height: 100%; object-fit: cover; }
+.cam__start {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--start-btn);
+  height: var(--start-btn);
+  border-radius: var(--radius-pill);
+  color: var(--label);
+}
+.cam__start .icon { width: var(--icon-xl); height: var(--icon-xl); }
+
+/* Coach mark (FR-1.4, скрін 21): вицвітання екрана, чіп і картка над ним.
+   Картка - one-off S04 (кроки 2-3 PRD не в прототипі), лишена локальною. */
+.cam__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: var(--bg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-alert) var(--ease-out);
+}
+.cam.is-coach .cam__scrim { opacity: var(--coach-scrim-opacity); pointer-events: auto; }
+.coach-card {
+  position: absolute;
+  z-index: calc(var(--z-overlay) + 1);
+  left: var(--sp-2);
+  right: var(--sp-2);
+  bottom: calc(100% + var(--sp-1));
+  padding: var(--sp-2);
+  border-radius: var(--radius-card);
+}
+.coach-card__step { color: var(--label-2); }
+.coach-card__title { padding-top: var(--sp-1); }
+.coach-card__text { padding-top: var(--sp-half); color: var(--label-2); }
+.coach-card .btn { margin-top: var(--sp-2); }
+
+@media (prefers-reduced-motion: reduce) {
+  .cam__scrim, .cam__modes, .cam__controls, .cam__focals, .cam__flip .icon {
+    transition-duration: var(--dur-reduced) !important;
+    transition-timing-function: ease !important;
+  }
+  .cam__focals { transform: none; }
+}
+
+/* ---------- S05 Session capture (DEV-DOC "### S05 Session capture"; скріни 34, 35) ----------
+   Тема темна, фон чорний. Виміри зі скрінів (екран ≈ 260 px = 375 pt, 0.69 px/pt):
+   панель на всю ширину; тег і лічильник ≈ 18 px від країв ≈ 26 pt -> 24; цифра по центру;
+   видошукач ≈ 249 pt (--vf-capture-inset); нижній ряд - три рівні колонки (центри ≈ 63 / 188 / 314 pt).
+   Вертикаль скрінів обрізана, тому вертикальні відступи - сітка 8, [approx]. */
+.cap {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--safe-top) 0 var(--safe-bottom);
+  background: var(--bg);
+  color: var(--label);
+  overflow: hidden;
+}
+.cap__panel { flex: none; border-bottom: var(--hairline) solid var(--cap-hairline); } /* #50: скрін 34/35 - тонка лінія під панеллю */
+.cap__meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: var(--sp-2) var(--sp-3) 0;
+}
+.cap__tag, .cap__counter { color: var(--label-2); }
+.cap__countdown { padding: var(--sp-1) 0 var(--sp-4); } /* запас під цифру 160 (scale від центру боксу 96): глиф 160 pt виходить за бокс донизу (панель overflow:hidden), [approx] */
+.cap__stage {
+  flex: 1;
+  min-height: 0;
+  container-type: size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-1) var(--vf-capture-inset); /* #50: проміжки до сітки 8 (було 24) */
+}
+.cap__bottom { flex: none; display: flex; align-items: center; padding: var(--sp-1) 0 var(--sp-2); }
+.cap__col { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; }
+.cap__taken { font-variant-numeric: tabular-nums; }
+.cap[data-phase="paused"] .vf__notice { display: flex; }
+
+/* ---------- S06 Review / S07 Your keepers (DEV-DOC "### S06", "### S07"; скріни 36, 37, 38) ----------
+   Тема темна. Спільний корінь .review: розмитий фон на всю площу, ReviewBar зверху (safe top у його padding),
+   тіло по центру, safe bottom внизу. Виміри з скрінів 36/38 (екран ≈ 260 px = 375 pt) - у tokens.css з [approx]. */
+.review {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-bottom: var(--safe-bottom);
+  background: var(--bg);
+  color: var(--label);
+  overflow: hidden;
+}
+.review__body {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+/* S06: тіло = поверхня жесту (drag з будь-якого місця поза кнопками); сторінка не скролиться */
+.review--s06 .review__body { touch-action: none; }
+.rv__stack {
+  position: relative;
+  width: calc(100% - 2 * var(--review-card-inset));
+  aspect-ratio: var(--review-card-ratio);
+}
+.rv__hint { margin: var(--sp-4) 0 0; color: var(--label-2); text-align: center; } /* скрін 36: підказка під стопкою */
+.rv__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--sp-3) var(--sp-6) 0;
+}
+.swipe-card:not(.is-dragging) .swipe-card__stamp { transition: opacity var(--dur-swipe) var(--ease-ios); }
+@media (prefers-reduced-motion: reduce) {
+  .swipe-card:not(.is-dragging) .swipe-card__stamp { transition-duration: var(--dur-reduced); }
+}
+/* порожній стан S06: без розмитого фону, текст і кнопка по центру */
+.review__empty { padding: 0 var(--sp-3); text-align: center; }
+.review__empty-text { margin: var(--sp-1) 0 var(--sp-3); color: var(--label-2); }
+/* S07: картка по центру, кругла Undo під нею */
+.kp__undo { margin-top: var(--sp-4); }
+
+/* ---------- H02 Session (DEV-DOC "### H02 / H03"; скріни 24, 25) ----------
+   SessionValues: розглянуто, лишено локальним - один споживач (H02); S12 Capture defaults
+   показує значення рядком ListRow, не цим блоком. Заливка --fill - як трек SegmentChip-групи
+   на тому ж листі (скрін 23/24: однаковий сірий), радіус --radius-card як у ListGroup [approx]. */
+.h02-values {
+  display: flex;
+  align-items: center;
+  height: var(--values-card-h);
+  padding: 0 var(--sp-half) 0 var(--sp-1);
+  border-radius: var(--radius-card);
+  background: var(--fill);
+}
+.h02-values__col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.h02-values__label { color: var(--label-2); }
+.h02-values__value { display: flex; align-items: baseline; padding-top: var(--sp-half); }
+.h02-values__num { font: var(--fw-title2) var(--fs-title2)/var(--lh-title2) var(--font-sans); font-variant-numeric: tabular-nums; }
+.h02-values__unit { margin-left: var(--sp-half); color: var(--label-2); font: var(--fw-footnote) var(--fs-footnote)/var(--lh-footnote) var(--font-sans); }
+.h02-values__edit { flex: none; }
+.h02__presets-header { padding-top: var(--sp-3); }
+
+/* ---------- H03 Edit values ---------- */
+.h03__save { margin-top: var(--sp-3); }
+/* aria-disabled для AT, але тап має показати тост "soon" (DEV-DOC): не гасимо pointer-events і opacity, статус читається з бейджа Soon */
+.h03__save[aria-disabled="true"] { pointer-events: auto; opacity: 1; }
+.h03__soon { margin-left: var(--sp-1); }
+
+/* ---------- H04 Look (DEV-DOC "### H04 Look"; скрін 26) ----------
+   Блок назви й опису центрального стилю - локальний (один споживач). Ліве вирівнювання - скрін 26. */
+.h04__looks { padding-top: var(--sp-1); }
+.h04__info { padding: var(--sp-2) 0 0; }
+.h04__name, .h04__desc, .h04__hint { margin: 0; }
+.h04__desc { padding-top: var(--sp-half); color: var(--label-2); }
+.h04__hint { display: flex; align-items: center; padding-top: var(--sp-1); color: var(--label-2); }
+.h04__hint > .icon { margin-right: var(--sp-half); }
+
+/* ---------- S08 Session gallery (DEV-DOC "### S08"; скрін 42) ----------
+   Локально: навбар і рядок ліміту - один споживач. Сітка - padding клітинок (PhotoGridItem), не gap. */
+.gal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--safe-top) 0 0;
+  background: var(--bg);
+  color: var(--label);
+}
+.gal [hidden] { display: none; }
+.gal__nav { flex: none; display: flex; align-items: center; height: var(--tap); padding: 0 var(--sp-1); }
+.gal__title { flex: 1; min-width: 0; padding: 0 var(--sp-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gal__export { flex: none; margin-right: var(--sp-1); }
+.gal__scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-bottom: calc(var(--safe-bottom) + var(--sp-2)); }
+/* Рядок ліміту: текст + посилання (hit area 44 через вертикальний padding) */
+.gal__limit { padding: var(--sp-1) var(--sp-2) 0; }
+.gal__limit-text { color: var(--label-2); }
+.gal__upgrade {
+  display: block;
+  padding: calc((var(--tap) - var(--lh-footnote)) / 2) 0;
+  color: var(--label);
+  font-weight: var(--fw-headline);
+  text-decoration: underline;
+  text-underline-offset: var(--sp-half);
+}
+.gal__limit-text + .gal__upgrade { margin-top: calc(-1 * var(--sp-1)); }
+.gal__stats { display: flex; padding: var(--sp-1) var(--sp-2) var(--sp-1); }
+.gal__grid { display: grid; grid-template-columns: repeat(3, 1fr); padding: 0 calc(var(--sp-2) - var(--grid-gap) / 2); }
+.gal__empty { display: flex; flex-direction: column; align-items: center; padding: var(--sp-6) var(--sp-4); text-align: center; }
+.gal__empty-icon.icon { width: var(--icon-xl); height: var(--icon-xl); color: var(--label-2); }
+.gal__empty-title { padding-top: var(--sp-2); }
+.gal__empty-text { padding-top: var(--sp-1); color: var(--label-2); }
+
+/* ---------- S09 Photo viewer (DEV-DOC "### S09"; скрін 39) ----------
+   Чорний фон, фото по центру екрана (скрін 39: центр кадру ≈ центр екрана), glass-кнопки над фото.
+   Локально: один споживач; PhotoPager і IconButton lg - у components.css. */
+.viewer { position: relative; height: 100%; background: var(--bg); color: var(--label); outline: none; }
+.viewer__stage { position: absolute; inset: 0; touch-action: pan-x; }
+.viewer__top {
+  position: absolute;
+  z-index: 1;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--safe-top) var(--sp-2) 0;
+}
+.viewer__meta { color: var(--label); text-align: right; }
+.viewer__bottom {
+  position: absolute;
+  z-index: 1;
+  left: 0; right: 0; bottom: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0 0 calc(var(--safe-bottom) + var(--sp-2));
+}
+.viewer__action { display: flex; flex: none; flex-direction: column; align-items: center; width: var(--viewer-action-w); }
+.viewer__caption { padding-top: var(--sp-1); color: var(--label-2); }
+.viewer__empty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 var(--sp-4); text-align: center; }
+.viewer__empty-text { padding-top: var(--sp-1); color: var(--label-2); }
