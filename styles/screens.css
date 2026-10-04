@@ -642,3 +642,171 @@ p, h1, h2, h3 { margin: 0; }
 .viewer__caption { padding-top: var(--sp-1); color: var(--label-2); }
 .viewer__empty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 var(--sp-4); text-align: center; }
 .viewer__empty-text { padding-top: var(--sp-1); color: var(--label-2); }
+
+/* ---------- M01 Paywall (DEV-DOC "M01 Paywall"; скріни 16-20) ----------
+   Чорний лист на весь екран (тема dark). Картка слайда 4:5 [approx] скрін 16-20 (≈ 185 x 225 px).
+   Фото - заглушка (assets/CREDITS.md "Placeholders"); текст білий поверх --photo-scrim.
+   PlanCard і слайд-картка мають одного споживача - лишено локальними (components.md). */
+.m01 {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--safe-top) 0 var(--safe-bottom);
+  background: var(--bg);
+  color: var(--label);
+}
+.m01__header { position: relative; flex: none; display: flex; align-items: center; justify-content: center; height: var(--tap); }
+.m01__header > .m01__close { position: absolute; top: 0; right: var(--sp-1); color: var(--label-2); }
+.m01__viewport {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none; /* драг мишею не має починати виділення тексту -> pointercancel */
+}
+.m01__track { display: flex; width: 500%; height: 100%; transition: transform var(--dur-push) var(--ease-ios); }
+.m01__track.is-dragging { transition: none; }
+/* Reduced motion: замість зсуву - fade 150 мс (неактивні слайди прозорі, трек стрибає миттєво) */
+@media (prefers-reduced-motion: reduce) {
+  .m01__track { transition: none; }
+  .m01__slide { transition: opacity var(--dur-reduced) ease; }
+  .m01__slide[aria-hidden="true"] { opacity: 0; }
+}
+.m01__slide { flex: 0 0 20%; min-width: 0; height: 100%; }
+.m01__card-area { display: flex; align-items: center; justify-content: center; height: 100%; padding: var(--sp-1) 0; }
+.m01-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  height: 100%;
+  max-width: calc(100% - var(--sp-6));
+  aspect-ratio: var(--paywall-card-ratio);
+  padding: var(--sp-2);
+  border-radius: var(--radius-card);
+  background: var(--surface); /* photo placeholder: заливка токеном, без зображення */
+  color: var(--white);        /* текст поверх фото не залежить від теми */
+  overflow: hidden;
+}
+.m01-card--style { background: var(--ph-look); } /* слайд Style: фото з фільтрами Looks - заглушка тим самим градієнтом, що look-base H04 */
+.m01-card::before { content: ""; position: absolute; inset: 0; background: var(--photo-scrim); pointer-events: none; }
+.m01-card__num, .m01-card__text { position: relative; }
+.m01-card__line { margin: 0; padding-top: var(--sp-half); }
+.m01-card__tag { margin: 0; }
+.m01__pager { flex: none; display: flex; align-items: center; justify-content: space-between; padding: var(--sp-1) var(--sp-3) 0; }
+.m01__counter { color: var(--label-2); }
+.m01__plans { flex: none; padding: var(--sp-2) var(--sp-3) 0; }
+.plan {
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--plan-row-min);
+  padding: var(--plan-pad-y) var(--plan-pad-x);
+  border: var(--ring-w) solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--bg-grouped);
+  color: var(--label);
+  text-align: left;
+}
+.plan + .plan { margin-top: var(--sp-1); }
+.plan[aria-checked="true"] { border-color: var(--accent); }
+.plan__radio {
+  flex: none;
+  box-sizing: border-box;
+  width: var(--radio-size);
+  height: var(--radio-size);
+  margin-right: var(--photo-pad);
+  border: var(--radio-line) solid var(--label-2);
+  border-radius: var(--radius-pill);
+}
+.plan[aria-checked="true"] .plan__radio { border-color: var(--accent); }
+.plan__radio::after {
+  content: "";
+  display: block;
+  width: var(--radio-dot);
+  height: var(--radio-dot);
+  margin: calc((var(--radio-size) - 2 * var(--radio-line) - var(--radio-dot)) / 2);
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  transform: scale(0);
+  transition: transform var(--dur-focus) var(--ease-out);
+}
+.plan[aria-checked="true"] .plan__radio::after { transform: scale(1); }
+@media (prefers-reduced-motion: reduce) {
+  .plan__radio::after { transform: none; opacity: 0; transition: opacity var(--dur-reduced) ease; }
+  .plan[aria-checked="true"] .plan__radio::after { opacity: 1; }
+}
+.plan__body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.plan__name-row { display: flex; align-items: center; }
+/* Бейдж "7 days free" сидить на верхній межі картки (як стрічка "Best value"): у ряд з назвою й ціною 375 pt не вистачає (перевірено на PNG) */
+.plan__badge { position: absolute; top: 0; right: var(--plan-pad-x); transform: translateY(-50%); }
+.plan__detail { color: var(--label-2); }
+.plan__price { flex: none; margin-left: var(--sp-1); text-align: right; }
+.m01__cta { flex: none; padding: var(--sp-2) var(--sp-3) 0; }
+.m01__terms { flex: none; min-height: calc(var(--m01-terms-lines) * var(--lh-footnote) + var(--sp-1)); /* border-box: + padding-top */ margin: 0; padding: var(--sp-1) var(--sp-3) 0; text-align: center; text-wrap: balance; }
+.m01__links { flex: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; padding: var(--sp-half) var(--sp-2) 0; }
+.m01__links .btn--sm { padding: 0 var(--sp-half); color: var(--label-2); }
+
+/* ---------- A03 Purchase sheet (імітація системного листа покупки; sheet medium поверх M01) ---------- */
+.a03 [hidden] { display: none; }
+.a03__body { display: flex; flex-direction: column; }
+.a03__card { border-radius: var(--radius-sm); background: var(--fill); overflow: hidden; }
+.a03__row { padding: var(--sp-1) var(--sp-2); }
+.a03__row--rule { border-top: var(--hairline) solid var(--separator); }
+.a03__app, .a03__plan, .a03__price, .a03__renewal { margin: 0; }
+.a03__account { display: flex; align-items: center; min-height: var(--tap); }
+.a03__account-icon { flex: none; margin-right: var(--sp-1); color: var(--label-2); }
+.a03__action { padding-top: var(--sp-3); }
+.a03__busy, .a03__done { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: var(--sp-3) 0; }
+.a03__status { margin: 0; padding-top: var(--sp-2); }
+.a03__done-icon { width: var(--icon-xl); height: var(--icon-xl); color: var(--accent); }
+.a03__done-title { margin: 0; padding-top: var(--sp-2); }
+.a03__done-text { margin: 0; padding-top: var(--sp-half); }
+
+/* ---------- S12 Settings і підекрани (DEV-DOC "### S12"; скріни 07-15) ----------
+   Один каркас .stg на всі 8 роутів: світлий grouped-фон (--bg-grouped), NavBar, скрол зі списками.
+   Банер Upgrade і hero - локально в S12 main (один споживач). Над рівним фоном - суцільні заливки, скла немає. */
+.stg {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--safe-top) 0 0;
+  background: var(--bg-grouped);
+  color: var(--label);
+}
+.stg__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--sp-2) 0 calc(var(--safe-bottom) + var(--sp-3));
+}
+/* hero: логотип + слоган вирівняні з заголовками секцій (list-inset + row-pad-x), скрін 07 */
+.stg__hero { padding: var(--sp-1) calc(var(--list-inset) + var(--row-pad-x)) var(--sp-3); }
+.stg__tagline { margin: 0; padding-top: var(--sp-1); color: var(--label-2); }
+/* версія внизу About: mono caption по центру */
+.stg__version { margin: 0; padding: var(--sp-3) var(--sp-2) 0; text-align: center; color: var(--label-2); }
+
+/* Банер лежить у власному слоті, тож сусідній margin групи не спрацьовує - відступ до першої секції задаємо тут */
+.stg__banner { margin-bottom: var(--sp-3); }
+
+/* UpgradeBanner: єдине місце --accent-gradient у групі (brand.md); чорний текст на бежі (--on-accent) */
+.upgrade-banner {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: var(--sp-2);
+  border-radius: var(--radius-card);
+  background: var(--accent-gradient);
+  color: var(--on-accent);
+  text-align: left;
+}
+.upgrade-banner__icon.icon { margin-right: var(--sp-2); }
+.upgrade-banner__text { flex: 1; min-width: 0; }
+.upgrade-banner__title, .upgrade-banner__subtitle { display: block; }
+.upgrade-banner__chevron.icon { width: var(--icon-sm); height: var(--icon-sm); margin-left: var(--sp-1); }

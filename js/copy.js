@@ -51,6 +51,23 @@ const resetsIn = (days) => (days <= 0 ? 'resets today' : days === 1 ? 'resets to
 const exportsLeft = (n, days) =>
   `${n <= 0 ? 'No exports' : plural(n, 'export')} left this week · ${resetsIn(days)}`;
 
+/** Ціна з plan (data.js): money({ price: 29.99, currency: 'USD' }) -> "$29.99". Прототип - лише USD [mock]; у проді рядок дає StoreKit. */
+const money = ({ price, currency = 'USD' }) => `${currency === 'USD' ? '$' : `${currency} `}${price.toFixed(2)}`;
+
+/** Розмір сховища в МБ: 0 -> "0 KB", 48.2 -> "48.2 MB", 1536 -> "1.5 GB" */
+const storageSize = (mb) => {
+  if (mb <= 0) return '0 KB';
+  if (mb < 1) return `${Math.round(mb * 1024)} KB`;
+  if (mb >= 1024) return `${(mb / 1024).toFixed(1)} GB`;
+  return `${mb.toFixed(1)} MB`;
+};
+
+/** Слово статусу дозволу в підписі S12 main: granted -> "on", denied -> "off", notDetermined -> "not asked" */
+const permWord = (s) => ({ granted: 'on', denied: 'off', notDetermined: 'not asked' }[s] || 'not asked');
+
+/** Посилання покупок/legal: спільні для M01 і S12-about (один підпис на дію) */
+const PURCHASE_LINKS = { restore: 'Restore Purchases', redeem: 'Redeem Code', terms: 'Terms', privacy: 'Privacy' };
+
 export const copy = {
   app: {
     tagline: 'Your hands-free photographer',     // brand.md
@@ -68,6 +85,7 @@ export const copy = {
     allow: 'Allow',
     dontAllow: "Don't Allow",
     delete: 'Delete',
+    links: PURCHASE_LINKS,
   },
 
   /** aria-label для icon-only кнопок (twostraws--swiftui-pro: кожна іконка-кнопка має підпис) */
@@ -426,6 +444,261 @@ export const copy = {
     a11y: { action: 'Settings' },
   },
 
+  /**
+   * M01 Paywall (PRD "Вимоги до пейволу", Guideline 3.1.2, ref 16-20). Темна тема; тон тут продає.
+   * Ціни НЕ хардкодимо: усе через plans з data.js (у проді - StoreKit/RevenueCat), копі лише форматує.
+   * Plan = { id, price, currency, period, trialDays, perWeek? } (див. data.js). Прототип - US, USD [mock].
+   * Рядки слайдів - власні (PerPic: "Set the rhythm. Step into frame." тощо не повторюємо).
+   * Слайд 5 (Booth) лишається, Photo Booth - open-questions #79. Теги/лічильники - регістр задає CSS.
+   * Найдовший CTA: "Start 7-day free trial" (22 знаки).
+   */
+  M01: {
+    slides: [
+      { id: 'capture', tag: 'Capture', line: 'Set the timer, step back, and shoot a whole series.' },
+      { id: 'inspo', tag: 'Inspo', line: 'Pick a pose and line up with it on screen.' },
+      { id: 'style', tag: 'Style', line: 'Give every photo a Look that fits the mood.' },
+      { id: 'pick', tag: 'Pick', line: 'We flag the strongest shot of each session.' },
+      { id: 'booth', tag: 'Photo Booth', line: 'Four quick frames, one photo strip.' },
+    ],
+    slideNumber: (i) => pad2(i),                         // "01" на картці (i з 1)
+    pageIndicator: (i, n) => `${pad2(i)} / ${pad2(n)}`,  // "02 / 05"
+    plansGroup: 'Choose a plan',                         // a11y radiogroup; на екрані заголовка немає
+    plan: {
+      annual: {
+        name: 'Annual',                                  // = copy.plans.annual
+        badge: (days) => `${days} days free`,            // бейдж на Annual: trialDays з data.js
+        price: (p) => `${money(p)} / year`,
+        perWeek: (p) => `${money({ price: p.perWeek, currency: p.currency })} / week`, // "$0.58 / week"
+      },
+      weekly: {
+        name: 'Weekly',                                  // = copy.plans.weekly
+        price: (p) => `${money(p)} / week`,
+      },
+    },
+    cta: {
+      annual: (days) => `Start ${days}-day free trial`,
+      weekly: 'Continue',                                // = common.continue (one label per intent)
+    },
+    /** Умови під CTA (3.1.2): ціна + автопродовження. Не обіцяємо "Cancel anytime" без шляху скасування. */
+    terms: {
+      annual: (p) => `${p.trialDays} days free, then ${money(p)} per year. Renews automatically until you cancel.`,
+      weekly: (p) => `${money(p)} per week. Renews automatically until you cancel.`,
+      manage: 'Cancel anytime in your Apple Account settings.',
+    },
+    restore: PURCHASE_LINKS.restore,
+    termsLink: PURCHASE_LINKS.terms,
+    privacyLink: PURCHASE_LINKS.privacy,
+    redeem: PURCHASE_LINKS.redeem,
+    toast: {
+      restored: 'Purchases restored',
+      nothingToRestore: 'No purchases to restore',
+      redeemStub: 'Offer codes work in the App Store build',   // [mock] у проді - системний лист RevenueCat
+      linkStub: (name) => `${name} opens in the full app`,
+    },
+    a11y: {
+      close: 'Close',                                    // = a11y.close
+      carousel: 'Plus features',
+      slide: (i, n, tag) => `${tag}, ${i} of ${n}`,
+      plan: (name, detail, selected) => `${name}, ${detail}${selected ? ', selected' : ''}`,
+    },
+  },
+
+  /**
+   * A03 Purchase sheet (імітація системного листа StoreKit, FR-монетизація). Це "системний" вигляд,
+   * тому сухо, як в Apple: назва, план, ціна, Subscribe. [mock] - прототип нічого не списує.
+   * Потік: Subscribe -> 1 с спінер -> "You're all set" -> закриття, isPlus = true.
+   */
+  A03: {
+    title: 'Subscribe',
+    app: APP_NAME,
+    planLine: (planName) => `${PLAN_NAME} · ${planName}`,         // "Kadro Plus · Annual"
+    // Рядок вартості: Annual з trial -> "7 days free, then $29.99 per year"; Weekly -> "$2.99 per week"
+    priceLine: (p) => (p.trialDays > 0
+      ? `${p.trialDays} days free, then ${money(p)} per ${p.period}`
+      : `${money(p)} per ${p.period}`),
+    renewal: 'Renews automatically until you cancel.',
+    account: 'Apple Account',
+    subscribe: 'Subscribe',                                         // системна кнопка листа
+    cancel: 'Cancel',                                               // = common.cancel
+    processing: 'Processing…',
+    success: {
+      title: "You're all set",
+      message: `${PLAN_NAME} is on. Enjoy unlimited exports and every Look.`,
+    },
+    a11y: { sheet: 'Purchase confirmation', spinner: 'Processing purchase', cancel: 'Cancel purchase' },
+  },
+
+  /**
+   * S12 Settings main (FR-9, ref 07-08). Grouped list: логотип + слоган, банер Upgrade (ховається для Plus),
+   * секції Camera / Library / Kadro. Рядок = назва + підпис-значення (mono, регістр лишаємо як є).
+   * Summary-и - функції від state.settings / state.session / state.camera; формат "·" як sessionSummary.
+   * Не включаємо з PerPic: App Language, Community, соцмережі (поза FR-9).
+   */
+  S12: {
+    title: 'Settings',
+    wordmarkLabel: APP_NAME,                              // a11y логотипа; сам wordmark - компонент
+    tagline: 'Your hands-free photographer',              // = copy.app.tagline (brand.md)
+    upgrade: {
+      title: `Upgrade to ${PLAN_NAME}`,
+      subtitle: 'Unlock every feature',
+    },
+    sections: { camera: 'Camera', library: 'Library', app: APP_NAME },
+    rows: {
+      captureDefaults: {
+        title: 'Capture defaults',
+        summary: sessionSummary,                          // = copy.S04.sessionChip (one label per intent)
+      },
+      viewfinder: {
+        title: 'Viewfinder',
+        // "3:4 · Grid · Level"; вимкнені елементи не показуємо
+        summary: (cam, s) => [cam.aspect, s.grid && 'Grid', s.level && 'Level'].filter(Boolean).join(' · '),
+      },
+      feedback: {
+        title: 'Feedback',
+        // "Flash · Haptics"; нічого не ввімкнено -> "All off"
+        summary: (s) => [s.flashBeforeShot && 'Flash', s.haptics && 'Haptics', s.countdownSound && 'Sound']
+          .filter(Boolean).join(' · ') || 'All off',
+      },
+      saving: { title: 'Saving', summary: (mode) => copy.S12saving.modes[mode].short },
+      storage: { title: 'Storage', summary: (usedMb) => storageSize(usedMb) },
+      permissions: {
+        title: 'Permissions',
+        // "Camera on · Photos not asked"
+        summary: (perm) => `Camera ${permWord(perm.camera)} · Photos ${permWord(perm.photos)}`,
+      },
+      about: { title: 'About & Support', summary: `${APP_NAME}, purchases and help` },
+    },
+    plusSection: { title: PLAN_NAME, summary: 'Active' }, // опційно: рядок статусу для Plus замість банера
+    a11y: {
+      back: 'Back',
+      upgrade: `Upgrade to ${PLAN_NAME}. Unlock every feature.`,
+      row: (title, summary) => `${title}, ${summary}`,
+    },
+    mock: { usedMb: 48.2, generatedMb: 12.6 },            // [mock] сховище; Storage і рядок Storage беруть звідси
+  },
+
+  /** S12-capture-defaults (FR-9: Start delay, Interval, Photo count, Default look). Pull-down меню. */
+  S12capture: {
+    title: 'Capture defaults',
+    header: 'New sessions',
+    rows: { delay: 'Start delay', interval: 'Interval', count: 'Photo count', look: 'Default look' },
+    delayOption: (n) => (n === 0 ? 'No delay' : `${n}s`),
+    intervalOption: (n) => `${n}s`,
+    countOption: (n) => plural(n, 'photo'),
+    lookOption: (id) => copy.looks[id],
+    plusTag: PLUS_BADGE,                                  // позначка Plus-стилю в меню -> M01 (source: look)
+    footer: 'These values are the starting point for every new session.',
+    a11y: { menu: (title, value) => `${title}, ${value}. Opens a menu.` },
+  },
+
+  /** S12-viewfinder (FR-9: Default aspect ratio, Composition grid, Level guide, Keep screen awake). */
+  S12viewfinder: {
+    title: 'Viewfinder',
+    header: 'Framing',
+    rows: { aspect: 'Default aspect ratio', grid: 'Composition grid', level: 'Level guide', awake: 'Keep screen awake' },
+    footer: 'The ratio frames the viewfinder and your photos. Keep screen awake applies only while the camera is open.',
+    a11y: { aspect: (r) => `Default aspect ratio, ${ratioSpoken(r)}. Opens a menu.` },
+  },
+
+  /** S12-feedback (FR-9: Flash before shot, Haptics, [+] Countdown sound). Лише тогли. */
+  S12feedback: {
+    title: 'Feedback',
+    header: 'During a session',
+    rows: { flash: 'Flash before shot', haptics: 'Haptics', sound: 'Countdown sound' },
+    footer: 'Flash before shot gives a brief light cue just ahead of each photo. Countdown sound ticks through the last three seconds.',
+  },
+
+  /**
+   * S12-saving (FR-9). saveMode з state.settings: manual | ask | picks | all. Picks/all - Plus -> M01 (source: saving).
+   * "Auto-save" - майбутня фіча (PRD Next); експорт-лімітів у копі не обіцяємо. short - підпис рядка в S12 main.
+   */
+  S12saving: {
+    title: 'Saving',
+    header: 'Exporting',
+    rows: { mode: 'Save to Photos', originals: 'Keep originals' },
+    modes: {
+      manual: { label: 'Manually', short: 'Manually' },
+      ask: { label: 'Ask after each session', short: 'Ask each time' },
+      picks: { label: 'Auto-save picks', short: 'Picks' },
+      all: { label: 'Auto-save everything', short: 'Everything' },
+    },
+    plusTag: PLUS_BADGE,
+    footer: `Photos stay in ${APP_NAME} until you export them. With Keep originals on, untouched captures remain on your iPhone.`,
+  },
+
+  /** S12-storage (FR-9). Розміри - [mock] з copy.S12.mock; storageSize форматує KB/MB/GB. */
+  S12storage: {
+    title: 'Storage',
+    header: 'On this iPhone',
+    rows: { used: 'Used', generated: 'Generated looks', clear: 'Clear generated images', orphaned: 'Remove orphaned files' },
+    size: storageSize,                                    // (mb) -> "48.2 MB"; 0 -> "0 KB"
+    footer: 'Clearing frees the space used by styled copies. Your originals and thumbnails are not touched.',
+    clearAlert: {
+      title: 'Clear generated images?',
+      message: 'Styled copies are rebuilt when you open a photo. Originals stay as they are.',
+      confirm: 'Clear',
+      cancel: 'Cancel',                                   // = common.cancel
+    },
+    orphanedAlert: {
+      title: 'Remove orphaned files?',
+      message: 'This deletes leftover files that no longer belong to any session.',
+      confirm: 'Remove',
+      cancel: 'Cancel',
+    },
+    toast: {
+      cleared: (mb) => `Cleared ${storageSize(mb)}`,
+      orphanedRemoved: (n, mb) => `Removed ${plural(n, 'file')} · ${storageSize(mb)}`,
+      orphanedNone: 'No orphaned files found',
+    },
+    mock: { orphanedCount: 3, orphanedMb: 1.4 },          // [mock] результат "Remove orphaned files"
+  },
+
+  /**
+   * S12-permissions (FR-9). Дія переходу в системні налаштування скрізь підписана "Settings" (#54):
+   * рядок = common.settings, під ним пояснення. Статуси: camera granted/denied/notDetermined; photos - те саме.
+   */
+  S12permissions: {
+    title: 'Permissions',
+    header: 'Access',
+    rows: { camera: 'Camera', photos: 'Photos (export)', settings: 'Settings' },
+    status: {
+      camera: { granted: 'On', denied: 'Off', notDetermined: 'Not asked' },
+      photos: { granted: 'Add only', denied: 'Off', notDetermined: 'Not asked' },
+    },
+    settingsHint: 'Change access in iOS Settings',        // підпис під рядком Settings; сам рядок - 'Settings'
+    footer: `${APP_NAME} only adds photos you choose to export. It never browses your library.`,
+    a11y: { settings: 'Settings. Opens the iOS Settings app.' },
+    stub: 'Settings opens iOS Settings on a real device', // тост у прототипі
+  },
+
+  /** S12-about (FR-9: About, Rate, Share, Support, Email feedback, Restore Purchases, Redeem Code, Privacy, Terms). */
+  S12about: {
+    title: 'About & Support',
+    headers: { app: APP_NAME, purchases: 'Purchases', legal: 'Legal' },
+    version: (v, build) => `Version ${v} (${build})`,
+    mock: { version: '1.0', build: 1 },                   // [mock]
+    rows: {
+      about: `About ${APP_NAME}`,
+      rate: `Rate ${APP_NAME}`,
+      share: `Share ${APP_NAME}`,
+      support: 'Support',
+      email: 'Email feedback',
+      restore: PURCHASE_LINKS.restore,
+      redeem: PURCHASE_LINKS.redeem,
+      privacy: PURCHASE_LINKS.privacy,
+      terms: PURCHASE_LINKS.terms,
+    },
+    plan: { title: 'Plan', free: 'Free', plus: PLAN_NAME },   // рядок статусу над Purchases
+    aboutText: `${APP_NAME} is a hands-free photographer: set a timer, strike a pose, and keep the best shots. Everything stays on your iPhone.`,
+    shareMessage: `Try ${APP_NAME}: a timer camera that shoots a whole series while you pose.`, // [mock] текст share-листа
+    toast: {
+      restored: 'Purchases restored',
+      nothingToRestore: 'No purchases to restore',
+      stub: (name) => `${name} opens in the full app`,
+    },
+    a11y: { external: (title) => `${title}. Opens outside the app.` },
+  },
+
   /** Назви з "Інвентар екранів" DEV-DOC - лише для debug і плейсхолдерів */
   screens: {
     S01: 'Onboarding',
@@ -505,8 +778,21 @@ export const copy = {
         S07: [['Free, 2 left', { seed: '8', kept: 'mix', plus: '0', used: '3' }], ['Free, limit reached', { seed: '8', kept: 'mix', plus: '0', used: '5' }], ['Plus', { seed: '8', kept: 'mix', plus: '1' }]],
         S08: [['Free, 2 left', { seed: '8', kept: 'mix', plus: '0', used: '3' }], ['Free, limit reached', { seed: '8', kept: 'mix', plus: '0', used: '5' }], ['Plus', { seed: '8', kept: 'mix', plus: '1' }], ['With favorites', { seed: '8', kept: 'mix', plus: '0', used: '3', favs: '1,2' }]],
         S09: [['Free', { seed: '8', index: '2', plus: '0', used: '3' }], ['Favorite', { seed: '8', index: '2', favs: '2', plus: '0', used: '3' }], ['Plus', { seed: '8', index: '2', plus: '1' }]],
+        M01: [
+          ['Slide 1 Capture · Annual', { slide: '0', plus: '0' }], ['Slide 2 Inspo', { slide: '1', plus: '0' }], ['Slide 3 Style (from Look)', { slide: '2', plus: '0' }],
+          ['Slide 4 Pick (from export)', { slide: '3', plus: '0' }], ['Slide 5 Photo Booth', { slide: '4', plus: '0' }], ['Weekly selected', { slide: '0', plan: 'weekly', plus: '0' }],
+        ],
+        A03: [['Annual', { plan: 'annual', plus: '0' }], ['Weekly', { plan: 'weekly', plus: '0' }], ['Processing', { plan: 'annual', state: 'processing', plus: '0' }], ['Success', { plan: 'annual', state: 'success', plus: '0' }]],
         A02: [['Photos not determined', { seed: '8', photos: 'notDetermined' }]],
         T01: [['Photos denied', { seed: '8', photos: 'denied' }]],
+        S12: [['Free (Upgrade banner)', { plus: '0' }], ['Plus (no banner)', { plus: '1' }]],
+        'S12-capture-defaults': [['Defaults (Portrait)', { preset: 'portrait' }], ['Outfit values', { preset: 'outfit' }], ['Delay menu', { preset: 'portrait', open: 'delay' }], ['Photo count menu', { preset: 'portrait', open: 'count' }], ['Look menu (free)', { plus: '0', open: 'look' }], ['Look menu (Plus)', { plus: '1', open: 'look' }]],
+        'S12-viewfinder': [['All on', { settings: 'grid:1,level:1,keepAwake:1' }], ['All off', { settings: 'grid:0,level:0,keepAwake:0' }], ['Aspect menu', { open: 'aspect' }], ['9:16', { aspect: '9:16' }]],
+        'S12-feedback': [['All on', { settings: 'flashBeforeShot:1,haptics:1,countdownSound:1' }], ['All off', { settings: 'flashBeforeShot:0,haptics:0,countdownSound:0' }]],
+        'S12-saving': [['Manually', { plus: '0', settings: 'saveMode:manual' }], ['Menu (free)', { plus: '0', settings: 'saveMode:manual', open: 'mode' }], ['Menu (Plus)', { plus: '1', settings: 'saveMode:manual', open: 'mode' }], ['Auto-save picks (Plus)', { plus: '1', settings: 'saveMode:picks' }]],
+        'S12-storage': [['Mock data', { storage: 'mock' }], ['Empty (0 KB)', { storage: 'empty' }]],
+        'S12-permissions': [['Camera on, Photos not asked', { camera: 'granted', photos: 'notDetermined' }], ['Camera off, Photos not asked', { camera: 'denied', photos: 'notDetermined' }], ['All off', { camera: 'denied', photos: 'denied' }], ['All on', { camera: 'granted', photos: 'granted' }]],
+        'S12-about': [['Free', { plus: '0' }], ['Plus', { plus: '1' }]],
       },
     },
     placeholderTag: 'Not built',

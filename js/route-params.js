@@ -10,12 +10,17 @@
  *   plus=1|0            isPlus
  *   aspect=<r>          camera.aspect (3:4, 9:16, 1:1, 4:3, 16:9)
  *   used=<n>            exports.used (S08: used=3 -> "2 exports left"); photos=notDetermined|granted|denied -> permissions.photos
+ *   camera=notDetermined|granted|denied   permissions.camera (S12-permissions)
+ *   settings=grid:0,level:1,saveMode:picks  state.settings: 0/1 -> boolean, інше - рядок; невідомі ключі ігноруються (S12-*)
+ *   storage=mock|empty  state.storage: типові mock-розміри або 0 KB (S12-storage)
+ *   open=<name>         S12-*: одразу відкрити pull-down меню рядка (data-menu), для відладки і рендеру
  *
  * Застосовується один раз при першому рендері роуту (не в update), звичайним store.set -
  * екрани під листом (S04) теж оновлюються.
  */
 
 import * as store from './state.js';
+import { defaults } from './state.js';
 import { presets, looks, aspectRatios } from './data.js';
 import { copy } from './copy.js';
 
@@ -47,6 +52,19 @@ export function applyRouteParams(params = {}, { overCamera = false } = {}) {
   // Phase 4 (S08, S09, A02, T01): лічильник експорту і дозвіл Photos для детермінованих кадрів
   if (params.used != null && !Number.isNaN(parseInt(params.used, 10))) patch.exports = { used: Math.max(0, parseInt(params.used, 10)) };
   if (['notDetermined', 'granted', 'denied'].includes(params.photos)) patch.permissions = { photos: params.photos };
+  if (['notDetermined', 'granted', 'denied'].includes(params.camera)) patch.permissions = { ...patch.permissions, camera: params.camera };
+  if (params.settings) {
+    const known = Object.keys(s.settings);
+    const next = {};
+    for (const pair of params.settings.split(',')) {
+      const [k, v] = pair.split(':');
+      if (!known.includes(k)) continue;
+      next[k] = v === '0' ? false : v === '1' ? true : v;
+    }
+    if (Object.keys(next).length) patch.settings = next;
+  }
+  if (params.storage === 'empty') patch.storage = { usedMb: 0, generatedMb: 0, orphanedCount: 0, orphanedMb: 0 };
+  if (params.storage === 'mock') patch.storage = defaults().storage;
   if (params.session) {
     const v = presetValues(params.session);
     if (v) patch.session = { ...v, configured: true };

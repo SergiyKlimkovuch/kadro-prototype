@@ -35,6 +35,7 @@
   --fs-title2: 22px;       --fw-title2: 600;      --lh-title2: 28px;
   --fs-headline: 17px;     --fw-headline: 600;    --lh-headline: 22px;
   --fs-body: 17px;         --fw-body: 400;        --lh-body: 22px;
+  --m01-terms-lines: 3;    /* M01: резерв під 3 рядки умов (Annual), щоб картка каруселі не стрибала при зміні плану */
   --fs-footnote: 13px;     --fw-footnote: 400;    --lh-footnote: 18px;
   --fs-mono-caption: 11px; --fw-mono-caption: 500; --lh-mono-caption: 13px; --ls-mono-caption: .08em;
   --fs-countdown: 96px;    --fw-countdown: 700;   --lh-countdown: 1;
@@ -197,6 +198,20 @@
   --viewer-btn: 56px;      /* [approx] скрін 39: glass-кнопки Favorite/Export/Delete ≈ 40 px / .69 = 58 pt -> сітка 8 */
   --viewer-action-w: 88px; /* [approx] скрін 39: центри кнопок через ≈ 63 px = 91 pt -> колонка 88 (кнопка 56 + 32 між ними); фіксована, щоб підпис Unfavorite не зсував сусідів */
 
+  /* ---- Phase 5: M01 Paywall, A03 Purchase sheet ---- */
+  --paywall-card-ratio: 4 / 5; /* [approx] скрін 16-20: картка слайда ≈ 185 x 225 px (0.82), вужча за S01 2:3 - під картку ще плани й CTA */
+  --radio-size: 20px;      /* ComponentsKit RadioGroupVM.circleSize medium = 20 */
+  --radio-dot: 12px;       /* RadioGroupVM.innerCircleSize medium = 12 */
+  --radio-line: 2px;       /* RadioGroupVM.lineWidth medium = 2 */
+  --plan-pad-x: 16px;      /* ShipSwift SWPaywallView.demoPlanRow: .padding(.horizontal, 16) */
+  --plan-pad-y: 14px;      /* SWPaywallView.demoPlanRow: .padding(.vertical, 14) */
+  --plan-row-min: 52px;    /* [approx] рядок Weekly без підрядка: >= tap 44 + padding, сітка 4 */
+  --spinner-size: 36px;    /* ComponentsKit LoadingVM.preferredSize medium = 36 */
+  --spinner-w: 4.5px;      /* LoadingVM.loadingLineWidth = max(36 / 8, 2) = 4.5 */
+  --dur-spin: 1000ms;      /* SULoading: .linear(duration: 1.0).repeatForever */
+  --purchase-processing: 1000ms; /* DEV-DOC M01: "1 с спінер" (читається JS-ом) */
+  --purchase-done-hold: 1200ms;  /* [approx] скільки лежить "You're all set" перед закриттям (DEV-DOC без числа) */
+
   /* ---- Пристрій (DEV-DOC "Цільовий вьюпорт") ---- */
   --device-w: 375px;
   --device-h: 812px;
@@ -268,6 +283,7 @@
   --z-overlay: 10;
   --z-sheet: 20;
   --z-modal: 30;
+  --z-modal-sheet: 35;     /* лист поверх modal-шару (A03 над M01): між modal 30 і alert 40 */
   --z-alert: 40;
   --z-popover: 45;
   --z-toast: 50;
