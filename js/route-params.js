@@ -13,6 +13,7 @@
  *   camera=notDetermined|granted|denied   permissions.camera (S12-permissions)
  *   settings=grid:0,level:1,saveMode:picks  state.settings: 0/1 -> boolean, інше - рядок; невідомі ключі ігноруються (S12-*)
  *   storage=mock|empty  state.storage: типові mock-розміри або 0 KB (S12-storage)
+ *   pose=<id inspo|1|0>  state.poseGuide: inspo-NN (або 1 = типовий референс) вмикає накладку pose guide, 0 вимикає; opacity=<0.1..0.7>
  *   open=<name>         S12-*: одразу відкрити pull-down меню рядка (data-menu), для відладки і рендеру
  *
  * Застосовується один раз при першому рендері роуту (не в update), звичайним store.set -
@@ -23,6 +24,7 @@ import * as store from './state.js';
 import { defaults } from './state.js';
 import { presets, looks, aspectRatios } from './data.js';
 import { copy } from './copy.js';
+import { byId, DEBUG_POSE_ID, POSE_OPACITY } from './inspo.js';
 
 export function presetValues(id) {
   const p = presets.find((x) => x.id === id);
@@ -41,6 +43,17 @@ export function lookIdFrom(param) {
   const byName = looks.find((l) => norm(copy.looks[l.id] || '') === q);
   if (!byName && !warned.has(q)) { warned.add(q); console.warn(`route-params: look "${param}" не розпізнано - лишаю поточний`); }
   return byName ? byName.id : null;
+}
+
+/** Pose guide (FR-8.3): ?pose= і ?opacity= для відладки S04 / S05 без проходу через S10 / S11 */
+export function poseGuidePatch(params = {}) {
+  const patch = {};
+  if (params.pose === '0') patch.inspoId = null;
+  else if (params.pose === '1') patch.inspoId = DEBUG_POSE_ID;
+  else if (params.pose && byId(params.pose)) patch.inspoId = params.pose;
+  const o = parseFloat(params.opacity);
+  if (!Number.isNaN(o)) patch.opacity = Math.min(POSE_OPACITY.max, Math.max(POSE_OPACITY.min, o));
+  return Object.keys(patch).length ? { poseGuide: patch } : null;
 }
 
 /** opts.overCamera - роут лежить поверх S04 (листи): coach mark S04 до цього вже пройдений */
@@ -80,6 +93,7 @@ export function applyRouteParams(params = {}, { overCamera = false } = {}) {
   }
   // сесія вже налаштована (session=) або лист поверх S04 - coach mark (FR-1.4) уже пройдений
   if ((overCamera || params.session) && !s.coachSeen) patch.coachSeen = true;
+  Object.assign(patch, poseGuidePatch(params));
   if (Object.keys(patch).length) store.set(patch);
   return store.get();
 }

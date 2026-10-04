@@ -776,6 +776,8 @@ export const copy = {
         S05: [['Countdown', { delay: '10' }], ['Mid-session', { frame: '5', shot: '2', count: '8', interval: '2' }], ['Paused', { state: 'paused' }]],
         S06: [['Stack, 8 left', { seed: '8', picks: '1,5' }], ['Dragging: Keep', { seed: '8', picks: '1,5', drag: '0.5', dir: 'keep' }], ['Dragging: Drop', { seed: '8', picks: '1,5', drag: '0.5', dir: 'drop' }]],
         S07: [['Free, 2 left', { seed: '8', kept: 'mix', plus: '0', used: '3' }], ['Free, limit reached', { seed: '8', kept: 'mix', plus: '0', used: '5' }], ['Plus', { seed: '8', kept: 'mix', plus: '1' }]],
+        S10: [['All', {}], ['Favorites', { cat: 'favorites' }], ['Search: window', { q: 'window' }], ['Search: empty result', { q: 'zzz' }]],
+        S11: [['Favorite (Hallway satin look)', { id: 'inspo-02' }], ['Not favorite', { id: 'inspo-03' }]],
         S08: [['Free, 2 left', { seed: '8', kept: 'mix', plus: '0', used: '3' }], ['Free, limit reached', { seed: '8', kept: 'mix', plus: '0', used: '5' }], ['Plus', { seed: '8', kept: 'mix', plus: '1' }], ['With favorites', { seed: '8', kept: 'mix', plus: '0', used: '3', favs: '1,2' }]],
         S09: [['Free', { seed: '8', index: '2', plus: '0', used: '3' }], ['Favorite', { seed: '8', index: '2', favs: '2', plus: '0', used: '3' }], ['Plus', { seed: '8', index: '2', plus: '1' }]],
         M01: [
@@ -895,5 +897,90 @@ export const copy = {
   plans: {
     annual: 'Annual',
     weekly: 'Weekly',
+  },
+
+  /**
+   * S10 Inspo (FR-8.1). Дані референсів (id, category, src) - data.js `inspo`; назви й alt - тут за id.
+   * Емодзі чіпів - data.js `inspoCategories` (виняток open-questions #11). Один намір - одне формулювання:
+   * "Favorite" (зірочка) однаково на S10 і S11; "pose guide" - однаково на S10, S11, S04.
+   */
+  S10: {
+    title: 'Inspo',                                     // навбар; назва екрана S11 - copy.S11.title
+    plusSoon: 'Coming soon',                            // заглушка "+" (тост); a11y - nav.add
+    nextSoon: 'Coming soon',                            // заглушка Next, якщо builder показує тост
+    search: {
+      placeholder: 'Search poses',
+      cancel: 'Cancel',
+      emptyTitle: (q) => `No poses for "${q}"`,
+      emptyMessage: 'Try another word, like "window" or "street".',
+      clear: 'Clear search',
+    },
+    emptyCategory: {                                    // чіп без карток (Favorites до першої зірочки)
+      favorites: { title: 'No favorites yet', message: 'Tap the star on a pose to keep it here.' },
+      default: { title: 'Nothing here yet', message: 'New poses are on the way.' },
+    },
+    nav: { back: 'Back', add: 'Add inspo', next: 'Next', search: 'Search' },
+    a11y: {
+      categories: 'Categories',                         // aria-label двох рядків чіпів
+      category: (name, selected) => `${name}${selected ? ', selected' : ''}`,
+      favorite: (title) => `Add ${title} to favorites`,
+      unfavorite: (title) => `Remove ${title} from favorites`,
+      pose: (title) => `Use ${title} as pose guide`,    // pose-іконка на картці
+      open: (title) => `${title}. Opens reference.`,
+      photo: (alt) => alt,
+      resultCount: (n) => (n === 1 ? '1 pose' : `${n} poses`),
+    },
+    /** Мок-референси: title - рядок під фото на S11 і для пошуку; alt - опис кадру. 20 шт., по 2-3 на категорію */
+    items: {
+      'inspo-01': { title: 'Window light, soft smile', alt: 'Woman smiling by a bright window' },
+      'inspo-02': { title: 'Hallway satin look', alt: 'Woman in a satin dress standing in a hallway' },
+      'inspo-03': { title: 'Linen set, golden hour', alt: 'Person in a linen outfit in warm evening light' },
+      'inspo-04': { title: 'Hands in pockets, wide stance', alt: 'Person standing with hands in jacket pockets' },
+      'inspo-05': { title: 'Rooftop toast', alt: 'Two friends raising glasses on a rooftop' },
+      'inspo-06': { title: 'Neon crosswalk', alt: 'Person walking across a street under neon signs' },
+      'inspo-07': { title: 'Back turned, over the shoulder', alt: 'Person glancing back over one shoulder at night' },
+      'inspo-08': { title: 'Crosswalk stride', alt: 'Woman mid-step on a city crosswalk' },
+      'inspo-09': { title: 'Brick wall lean', alt: 'Person leaning against a brick wall' },
+      'inspo-10': { title: 'Tram stop wait', alt: 'Person waiting at a tram stop with a coffee' },
+      'inspo-11': { title: 'Latte and laugh', alt: 'Woman laughing over a latte at a cafe table' },
+      'inspo-12': { title: 'Window seat, book in hand', alt: 'Person reading at a cafe window seat' },
+      'inspo-13': { title: 'Patio breakfast', alt: 'Two plates and coffee on a sunny patio table' },
+      'inspo-14': { title: 'Seaside steps', alt: 'Person sitting on stone steps by the sea' },
+      'inspo-15': { title: 'Cliffside overlook', alt: 'Person looking out over a coastal cliff' },
+      'inspo-16': { title: 'Market lane stroll', alt: 'Person walking through a busy market lane' },
+      'inspo-17': { title: 'Candles and confetti', alt: 'Person blowing out candles on a cake' },
+      'inspo-18': { title: 'Balloon backdrop', alt: 'Person posing in front of a balloon arch' },
+      'inspo-19': { title: 'Four-way jump', alt: 'Four friends jumping together outdoors' },
+      'inspo-20': { title: 'Linked arms, walking away', alt: 'Three friends walking away with linked arms' },
+    },
+  },
+
+  /** S11 Reference (FR-8.2). Назва референса - copy.S10.items[id].title */
+  S11: {
+    title: 'Reference',
+    usePose: 'Use as pose guide',                       // primary, ведe на S04 (pose-guide)
+    nav: { back: 'Back' },
+    a11y: {
+      favorite: 'Add to favorites',
+      unfavorite: 'Remove from favorites',
+      photo: (alt) => alt,
+      usePose: 'Use as pose guide. Opens the camera.',
+    },
+  },
+
+  /** Pose guide на S04/S05 (FR-8.3): панель у верхній частині видошукача (мініатюра, слайдер, ×) */
+  poseGuide: {
+    opacityLabel: 'Opacity',                            // видимий підпис не потрібен, якщо builder ховає; тримаємо для a11y/tooltip
+    opacityValue: (v) => `${Math.round(v * 100)}%`,     // v 0..1 (state.poseGuide.opacity)
+    a11y: {
+      panel: 'Pose guide',
+      thumbnail: (title) => `Reference: ${title}`,
+      opacity: 'Pose guide opacity',                    // aria-label слайдера; aria-valuetext = opacityValue
+      close: 'Close pose guide',
+    },
+    states: {
+      hidden: 'Pose guide hidden',                      // оголошення після ×
+      applied: (title) => `Pose guide on: ${title}`,    // оголошення після S11 -> S04
+    },
   },
 };

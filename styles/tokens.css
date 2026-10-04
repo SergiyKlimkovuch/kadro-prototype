@@ -212,6 +212,17 @@
   --purchase-processing: 1000ms; /* DEV-DOC M01: "1 с спінер" (читається JS-ом) */
   --purchase-done-hold: 1200ms;  /* [approx] скільки лежить "You're all set" перед закриттям (DEV-DOC без числа) */
 
+  /* ---- Phase 6: S10 Inspo, S11 Reference, Pose guide (components.md: Slider, SearchField, InspoPhoto, PoseGuidePanel) ---- */
+  --slider-track-h: 6px;    /* ComponentsKit SliderVM.trackHeight size small */
+  --slider-handle-w: 20px;  /* SliderVM.handleSize small = 20x32 */
+  --slider-handle-h: 32px;
+  --slider-space: 4px;      /* SliderVM.trackSpacing = 4 (смуга - ручка - залишок) */
+  --pose-inset: 12px;       /* [approx] відступ панелі від кутів видошукача = відступ кнопки "..." (скрін 33: панель і "..." в одній лінії) */
+  --pose-panel-h: 48px;     /* [approx] скрін 33: панель ≈ 32 px / .69 ≈ 46 pt -> сітка 8 */
+  --pose-thumb-w: 30px;     /* [approx] мініатюра 3:4 у панелі: 30 x 40 (панель 48 - padding 4 x 2) */
+  --pose-thumb-h: 40px;
+  --inspo-glyph: 50%;       /* glyph `user` на заглушці фото = половина ширини кадру */
+
   /* ---- Пристрій (DEV-DOC "Цільовий вьюпорт") ---- */
   --device-w: 375px;
   --device-h: 812px;

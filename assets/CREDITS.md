@@ -30,3 +30,4 @@
 | `M01 slide style card` | M01, слайд STYLE (03) | Той самий lifestyle-портрет, що `look-base` (H04), з теплим фільтром Look (CSS); поки - градієнт `--ph-look` | 4:5 |
 | `M01 slide pick card` | M01, слайд PICK (04) | Лайфстайл-кадр з серії, людина в русі, портрет (на карті можна стопку 2-3 кадрів) | 4:5 |
 | `M01 slide booth card` | M01, слайд PHOTO BOOTH (05) | Фотострічка з 4 кадрів однієї людини (колаж із фото Unsplash), вертикальна | 4:5 |
+| `inspo-01` ... `inspo-20` (одна заглушка на запис `data.js` `inspo`; ті самі на S10 картках, S11 фото, мініатюрі й накладці pose guide на S04 / S05) | S10, S11, S04, S05 | Референс пози для зйомки, портрет, людина (або група для categories besties / birthday) у повний або поясний зріст, чітка поза, без брендів. Що саме на кадрі - `copy.S10.items["inspo-NN"].alt` (напр. inspo-02 "Woman in a satin dress standing in a hallway", inspo-08 "Woman mid-step on a city crosswalk"); категорії - `data.js` | 3:4 портрет |

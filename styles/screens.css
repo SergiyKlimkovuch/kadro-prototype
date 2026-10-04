@@ -86,6 +86,8 @@ p, h1, h2, h3 { margin: 0; }
   color: var(--label);
   font: var(--fw-button-sm) var(--fs-button-sm)/1 var(--font-mono);
 }
+/* з ?debug=1 є повна debug-панель праворуч (Jump) - перемикач не потрібен і наповзав би на рамку */
+.has-debug .switcher { display: none; }
 @media (max-width: 430px) { .switcher { display: none; } }
 
 /* ---------- Debug-панель (поза #app) ---------- */
@@ -610,10 +612,10 @@ p, h1, h2, h3 { margin: 0; }
 .gal__limit-text + .gal__upgrade { margin-top: calc(-1 * var(--sp-1)); }
 .gal__stats { display: flex; padding: var(--sp-1) var(--sp-2) var(--sp-1); }
 .gal__grid { display: grid; grid-template-columns: repeat(3, 1fr); padding: 0 calc(var(--sp-2) - var(--grid-gap) / 2); }
-.gal__empty { display: flex; flex-direction: column; align-items: center; padding: var(--sp-6) var(--sp-4); text-align: center; }
-.gal__empty-icon.icon { width: var(--icon-xl); height: var(--icon-xl); color: var(--label-2); }
-.gal__empty-title { padding-top: var(--sp-2); }
-.gal__empty-text { padding-top: var(--sp-1); color: var(--label-2); }
+.gal__empty, .insp__empty { display: flex; flex-direction: column; align-items: center; padding: var(--sp-6) var(--sp-4); text-align: center; }
+.gal__empty-icon.icon, .insp__empty-icon.icon { width: var(--icon-xl); height: var(--icon-xl); color: var(--label-2); }
+.gal__empty-title, .insp__empty-title { padding-top: var(--sp-2); }
+.gal__empty-text, .insp__empty-text { padding-top: var(--sp-1); color: var(--label-2); } /* EmptyState: S08 і S10 (components.md) */
 
 /* ---------- S09 Photo viewer (DEV-DOC "### S09"; скрін 39) ----------
    Чорний фон, фото по центру екрана (скрін 39: центр кадру ≈ центр екрана), glass-кнопки над фото.
@@ -810,3 +812,55 @@ p, h1, h2, h3 { margin: 0; }
 .upgrade-banner__text { flex: 1; min-width: 0; }
 .upgrade-banner__title, .upgrade-banner__subtitle { display: block; }
 .upgrade-banner__chevron.icon { width: var(--icon-sm); height: var(--icon-sm); margin-left: var(--sp-1); }
+
+/* ---------- S10 Inspo (DEV-DOC "### S10 Inspo та S11 Reference"; скрін 27) ----------
+   Світлий рівний фон: кнопки навбара solid, чіпи --fill (скла немає). Скло лише на картках: зірка і pose-іконка над фото.
+   Два ряди чіпів - окремі горизонтальні скрол-ряди 4 + 4. Сітка 2 колонки - padding клітинки, не gap.
+   Розглянуто, лишено локальним: один споживач (S10); чіпи, фото, поле пошуку - у components.css. */
+.insp {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--safe-top) 0 0;
+  background: var(--bg);
+  color: var(--label);
+}
+.insp [hidden] { display: none; }
+.insp__search { flex: none; display: flex; align-items: center; height: var(--tap); padding: 0 var(--sp-1) 0 var(--sp-2); }
+.insp__search .btn--text { flex: none; margin-left: var(--sp-1); }
+.insp__chips { flex: none; padding-top: var(--sp-1); }
+.insp__row {
+  display: flex;
+  align-items: center;
+  height: var(--tap);
+  padding: 0 var(--sp-2);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.insp__row::-webkit-scrollbar { display: none; }
+.insp__row > .segment-chip { flex: none; }
+.insp__row > .segment-chip + .segment-chip { margin-left: var(--sp-1); }
+.insp__scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: var(--sp-1) calc(var(--sp-2) - var(--sp-half)) calc(var(--safe-bottom) + var(--sp-2)); }
+.insp__grid { display: grid; grid-template-columns: repeat(2, 1fr); }
+.insp__cell { padding: var(--sp-half); }
+.insp-card { position: relative; border-radius: var(--radius-photo); }
+.insp-card__open { display: block; width: 100%; padding: 0; border-radius: var(--radius-photo); }
+.insp-card__fav, .insp-card__pose { position: absolute; top: var(--sp-1); }
+.insp-card__fav { left: var(--sp-1); }
+.insp-card__pose { right: var(--sp-1); }
+
+/* ---------- S11 Reference (скріни 29, 32): навбар, фото 3:4 з великим радіусом, назва, primary внизу ---------- */
+.ref {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--safe-top) 0 0;
+  background: var(--bg);
+  color: var(--label);
+}
+.ref__scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: var(--sp-2) var(--sp-2) 0; }
+.ref__title { padding: var(--sp-2) var(--sp-1) var(--sp-1); }
+.ref__footer { flex: none; padding: var(--sp-1) var(--sp-2) calc(var(--safe-bottom) + var(--sp-1)); }
