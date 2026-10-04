@@ -809,7 +809,9 @@ button {
   right: calc(var(--sp-1) + var(--sp-half));
 }
 .vf .glass, .vf .icon-btn--glass { box-shadow: var(--glass-shadow-inset); }
-.vf__pose, .vf__pose-panel { display: none; } /* слот під pose guide (Phase 6, S11): тут нічого не будуємо */
+.vf__pose-panel { position: absolute; top: var(--pose-inset); left: var(--pose-inset); right: calc(var(--pose-inset) + var(--tap) + var(--sp-1)); } /* праворуч лишається місце під "..." (скрін 33) */
+/* Накладка pose guide: референс на весь видошукач, прозорість - слайдер панелі (state.poseGuide.opacity). Слот прихований атрибутом hidden. */
+.vf__pose { position: absolute; inset: 0; opacity: var(--pose-o, .4); pointer-events: none; }
 
 /* Рамка фокусу і сонечко експозиції (скрін 31; DEV-DOC: scale 1.4 -> 1 за 250 мс, зникає через 1.5 с) */
 .vf__focus {
@@ -1576,3 +1578,143 @@ button {
 @media (prefers-reduced-motion: reduce) {
   .spinner { animation: spinner-fade var(--dur-spin) ease-in-out infinite alternate; }
 }
+
+/* ---------- Phase 6: S10 Inspo, S11 Reference, Pose guide ---------- */
+
+/* NavBar: кнопки праворуч (S10 "+" і пошук, S11 зірочка); заголовок лишається по центру між ними */
+.navbar__end { display: flex; align-items: center; margin-left: auto; }
+.navbar__end > * + * { margin-left: var(--sp-1); }
+.navbar:has(.navbar__end > .icon-btn + .icon-btn) .navbar__title {
+  left: calc(2 * var(--tap) + var(--sp-1) + var(--sp-2));
+  right: calc(2 * var(--tap) + var(--sp-1) + var(--sp-2));
+}
+
+/* SegmentChip: sm (36) з вибором aria-pressed і емодзі - чіпи категорій S10 (скрін 27: сірі pill, емодзі + назва).
+   Розміри sm - як Button sm (ComponentsKit ButtonVM small: 36, padding 16, 14/500); вибраний - чорна pill, як primary. */
+.segment-chip--sm {
+  position: relative;
+  height: var(--btn-h-sm);
+  padding: 0 var(--btn-pad-x-sm);
+  font: var(--fw-button-sm) var(--fs-button-sm)/1 var(--font-sans);
+}
+.segment-chip--sm::after { /* hit area 44 для візуально 36-pt чіпа (HIG) */
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  top: calc((var(--btn-h-sm) - var(--tap)) / 2);
+  bottom: calc((var(--btn-h-sm) - var(--tap)) / 2);
+}
+.segment-chip__emoji { margin-right: var(--btn-content-space); font-size: var(--fs-button-md); line-height: 1; }
+.segment-chip[aria-pressed="true"] { background: var(--label); color: var(--bg); }
+
+/* ---------- Slider (ComponentsKit Slider/Models/SliderVM.swift + SUSlider.swift: смуга - крок 4 - ручка - залишок) ----------
+   Size small: смуга 6, ручка 20x32, радіус full. Кольори: смуга й ручка --label, залишок --label 30% [approx].
+   Ручка йде за пальцем 1:1, transition немає. Hit area 44 по висоті через ::after. */
+.slider {
+  --slider-usable: calc(100% - var(--slider-handle-w) - 2 * var(--slider-space));
+  --slider-rest: color-mix(in srgb, var(--label) 30%, transparent);
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: var(--slider-handle-h);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+.slider::after { content: ""; position: absolute; left: 0; right: 0; top: calc((var(--slider-handle-h) - var(--tap)) / 2); bottom: calc((var(--slider-handle-h) - var(--tap)) / 2); }
+.slider__bar, .slider__rest {
+  position: absolute;
+  top: 50%;
+  height: var(--slider-track-h);
+  margin-top: calc(var(--slider-track-h) / -2);
+  border-radius: var(--radius-pill);
+}
+.slider__bar { left: 0; width: calc(var(--slider-usable) * var(--slider-p, 0)); background: var(--label); }
+.slider__rest { right: 0; left: calc(var(--slider-usable) * var(--slider-p, 0) + 2 * var(--slider-space) + var(--slider-handle-w)); background: var(--slider-rest); }
+.slider__handle {
+  position: absolute;
+  top: 0;
+  left: calc(var(--slider-usable) * var(--slider-p, 0) + var(--slider-space));
+  width: var(--slider-handle-w);
+  height: var(--slider-handle-h);
+  border-radius: var(--radius-pill);
+  background: var(--label);
+}
+.slider:focus-visible { outline: none; }
+.slider:focus-visible .slider__handle { outline: var(--ring-w) solid var(--label); outline-offset: var(--ring-w); }
+
+/* ---------- SearchField (ShipSwift SWSearchBar: капсула, лупа, поле, кнопка очищення з'являється з текстом) ----------
+   Над рівним фоном - суцільна заливка --fill, не material (CLAUDE.md 1.7). Висота 44 = navbar (HIG tap target);
+   шрифт 16, а не 14 з SWSearchBar: iOS Safari збільшує сторінку при фокусі на полі < 16. */
+.search-field {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  height: var(--tap);
+  padding: 0 var(--sp-half) 0 var(--sp-2);
+  border-radius: var(--radius-pill);
+  background: var(--fill);
+  color: var(--label);
+}
+.search-field > .icon { flex: none; width: var(--icon-sm); height: var(--icon-sm); margin-right: var(--sp-1); color: var(--label-2); }
+.search-field__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: var(--fw-body) var(--fs-button-md)/1 var(--font-sans);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.search-field__input::placeholder { color: var(--label-2); }
+.search-field__input::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+.search-field__clear { color: var(--label-2); }
+.search-field__clear[hidden] { display: none; }
+
+/* ---------- InspoPhoto (фото референса 3:4; без src - нейтральна заглушка з glyph `user`) ----------
+   Скріни 27/29/32: кадр 3:4 з великим радіусом. Заглушка: тон за індексом (--ph-look-sky/-wall/-ground) -> --ph-neutral,
+   glyph - Heroicons user solid, 45% білого. У Figma замінюється фото (assets/CREDITS.md "Placeholders", inspo-<id>). */
+.inspo-photo {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: var(--photo-ratio);
+  overflow: hidden;
+  border-radius: var(--radius-photo);
+  background: var(--ph-neutral);
+}
+.inspo-photo[data-tone="1"] { --ph-tone: var(--ph-look-sky); }
+.inspo-photo[data-tone="2"] { --ph-tone: var(--ph-look-wall); }
+.inspo-photo[data-tone="3"] { --ph-tone: var(--ph-look-ground); }
+.inspo-photo[data-photo-placeholder] { background: linear-gradient(180deg, var(--ph-tone) 0%, var(--ph-neutral) 100%); }
+.inspo-photo__glyph.icon {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: var(--inspo-glyph);
+  height: auto;
+  color: color-mix(in srgb, var(--white) 45%, transparent);
+}
+.inspo-photo__img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.inspo-photo--hero { border-radius: var(--radius-card); } /* S11: радіус більший, скрін 29 [approx] */
+.inspo-photo--overlay { position: absolute; inset: 0; height: 100%; aspect-ratio: auto; border-radius: 0; } /* накладка на видошукач */
+.inspo-photo--thumb { width: var(--pose-thumb-w); height: var(--pose-thumb-h); aspect-ratio: auto; border-radius: var(--sp-1); }
+
+/* ---------- PoseGuidePanel (скрін 33: скляна пілюля зверху видошукача - мініатюра, слайдер, ×) ---------- */
+.pose-panel {
+  display: flex;
+  align-items: center;
+  height: var(--pose-panel-h);
+  padding: 0 var(--sp-half);
+  border-radius: var(--radius-pill);
+  color: var(--label);
+}
+.pose-panel__thumb { flex: none; width: var(--pose-thumb-w); height: var(--pose-thumb-h); margin-right: var(--sp-1); }
+.pose-panel .slider { margin: 0 var(--sp-half); }
+.pose-panel__close { flex: none; }

@@ -4,7 +4,8 @@
  *   live        - видошукач з камерою або заглушкою (getUserMedia, js/camera.js)
  *   off         - FR-1.3: "Camera is off" + Settings (імітація дозволу -> live)
  *   coach       - FR-1.4: затемнення + підсвічений чіп Photo Session, "Step 1 of 3"
- *   pose-guide  - Phase 6: у видошукачі лише слот [data-slot="pose-guide"], нічого не будуємо
+ *   pose-guide  - FR-8.3: накладка референса (слот pose-guide) + панель (слот pose-guide-panel); насправді накладка = state.poseGuide.inspoId
+ *                 (ставить S10/S11), тож вона живе у будь-якому стані live; ?state=pose-guide лише підставляє типовий референс для відладки
  * Без параметра: permissions.camera === 'denied' -> off; інакше live, а coach - якщо !state.coachSeen.
  *
  * Екран перемальовується точково (export update), а не з нуля: інакше не спрацюють transitions
@@ -21,6 +22,8 @@ import { haptic } from '../haptic.js';
 import { looks as looksData, focalLengths, flashModes } from '../data.js';
 import * as camera from '../camera.js';
 import { applyRouteParams } from '../route-params.js';
+import { paintPoseOverlay, syncPosePanel, closePoseGuide, activeReference } from '../pose-guide.js';
+import { DEBUG_POSE_ID, titleOf } from '../inspo.js';
 
 const t = copy.S04;
 const BASE_FOCAL = focalLengths[0];   // 26 mm - основна камера, зум = focal / 26
@@ -134,6 +137,7 @@ function skeleton() {
     </footer>
 
     <div class="cam__scrim" aria-hidden="true"></div>
+    <p class="sr-only" aria-live="polite" data-bind="live"></p>
   </section>`;
 }
 
@@ -195,6 +199,18 @@ function sync(el, state) {
     q('[data-bind="modes"]').innerHTML = modesHTML(state, coach);
     ui.sig.modes = modesSig;
   }
+
+  // pose guide: накладка + панель (FR-8.3); оголошення лише при зміні після першого малювання
+  paintPoseOverlay(el, state);
+  syncPosePanel(el, state);
+  const pose = activeReference(state);
+  const poseKey = pose ? pose.id : '';
+  if (ui.sig.pose !== undefined && ui.sig.pose !== poseKey) {
+    const live = q('[data-bind="live"]');
+    live.textContent = '';
+    requestAnimationFrame(() => { live.textContent = pose ? copy.poseGuide.states.applied(titleOf(pose.id)) : copy.poseGuide.states.hidden; });
+  }
+  ui.sig.pose = poseKey;
 
   // мініатюра останньої сесії
   const last = state.sessions[state.sessions.length - 1];
@@ -336,6 +352,7 @@ function onAction(el, action, target, ctx) {
       sync(el, store.get());
       break;
     case 'vf-more': openViewfinderMenu(target); break;
+    case 'pose-close': closePoseGuide(); break;
     case 'open-settings':
       // iOS Settings імітуємо: дозвіл granted -> перебудова екрана без ?state=off
       store.set({ permissions: { camera: 'granted' } });
@@ -352,7 +369,14 @@ function onAction(el, action, target, ctx) {
 /* ---------- контракт модуля ---------- */
 
 export function render(initial, ctx) {
-  const state = applyRouteParams(ctx.params); // ?session=outfit -> SessionChip, ?aspect=, ?plus= (route-params.js)
+  let state = applyRouteParams(ctx.params); // ?session=outfit -> SessionChip, ?aspect=, ?plus= (route-params.js)
+  if (ctx.params.state === 'pose-guide' && !state.poseGuide.inspoId) {
+    store.set({ poseGuide: { inspoId: DEBUG_POSE_ID } }); // відладка: стан pose-guide без проходу через S10/S11
+    state = store.get();
+  } else if (['live', 'off', 'coach'].includes(ctx.params.state) && state.poseGuide.inspoId) {
+    store.set({ poseGuide: { inspoId: null } }); // відладка: явний стан без накладки (в реальній навігації ?state= не буває)
+    state = store.get();
+  }
   const el = h(skeleton());
   el._ui = { params: ctx.params, coachDismissed: false, focalOpen: false, liveExposure: null, hideTimer: null, drag: null, sig: {} };
   el.addEventListener('click', (e) => {

@@ -31,20 +31,44 @@ export const looks = [
   { id: 'mono', plus: true, filter: 'grayscale(1) contrast(1.2)' },
 ];
 
-/** PRD FR-8.1. Емодзі чіпів (open-questions #11) обирається в етапі 6 разом з копі S10. */
+/** PRD FR-8.1. Емодзі чіпів - виняток open-questions #11. Назви - copy.inspoCategories. Два ряди по 4 чіпи. */
 export const inspoCategories = [
-  { id: 'favorites', emoji: null },
-  { id: 'ootd', emoji: null },
-  { id: 'goingOut', emoji: null },
-  { id: 'city', emoji: null },
-  { id: 'cafe', emoji: null },
-  { id: 'travel', emoji: null },
-  { id: 'birthday', emoji: null },
-  { id: 'besties', emoji: null },
+  { id: 'favorites', emoji: '⭐' },
+  { id: 'ootd', emoji: '👗' },
+  { id: 'goingOut', emoji: '🥂' },
+  { id: 'city', emoji: '🏙️' },
+  { id: 'cafe', emoji: '☕' },
+  { id: 'travel', emoji: '✈️' },
+  { id: 'birthday', emoji: '🎂' },
+  { id: 'besties', emoji: '👯' },
 ];
 
-/** 12-16 записів { id, title, category, src } з фото Unsplash - етап 6 (open-questions #4) */
-export const inspo = [];
+/**
+ * Записи { id, category, fav, src }: назви й alt - copy.S10.items[id]. src: null до появи фото (етап 6, open-questions #4;
+ * без фото builder ставить data-photo-placeholder, пропорція 3:4). Favorites - віртуальна категорія (fav: true).
+ */
+export const inspo = [
+  { id: 'inspo-01', category: 'ootd', fav: true, src: null },
+  { id: 'inspo-02', category: 'ootd', fav: true, src: null },
+  { id: 'inspo-03', category: 'ootd', fav: false, src: null },
+  { id: 'inspo-04', category: 'ootd', fav: false, src: null },
+  { id: 'inspo-05', category: 'goingOut', fav: false, src: null },
+  { id: 'inspo-06', category: 'goingOut', fav: false, src: null },
+  { id: 'inspo-07', category: 'goingOut', fav: false, src: null },
+  { id: 'inspo-08', category: 'city', fav: true, src: null },
+  { id: 'inspo-09', category: 'city', fav: false, src: null },
+  { id: 'inspo-10', category: 'city', fav: false, src: null },
+  { id: 'inspo-11', category: 'cafe', fav: false, src: null },
+  { id: 'inspo-12', category: 'cafe', fav: false, src: null },
+  { id: 'inspo-13', category: 'cafe', fav: false, src: null },
+  { id: 'inspo-14', category: 'travel', fav: false, src: null },
+  { id: 'inspo-15', category: 'travel', fav: false, src: null },
+  { id: 'inspo-16', category: 'travel', fav: false, src: null },
+  { id: 'inspo-17', category: 'birthday', fav: false, src: null },
+  { id: 'inspo-18', category: 'birthday', fav: false, src: null },
+  { id: 'inspo-19', category: 'besties', fav: false, src: null },
+  { id: 'inspo-20', category: 'besties', fav: false, src: null },
+];
 
 /** DEV-DOC M01 */
 export const plans = [

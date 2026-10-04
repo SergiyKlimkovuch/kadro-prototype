@@ -24,6 +24,8 @@ import { icon } from '../icons.js';
 import { h, esc } from '../ui.js';
 import { reducedMotion, cssMs } from '../router.js';
 import { looks as looksData, focalLengths } from '../data.js';
+import { paintPoseOverlay } from '../pose-guide.js';
+import { poseGuidePatch } from '../route-params.js';
 
 const t = copy.S05;
 const a = copy.S05.a11y;
@@ -123,6 +125,7 @@ function paintViewfinder(el, state) {
   const look = looksData.find((l) => l.id === state.lookId);
   vf.style.setProperty('--vf-look', look && look.filter !== 'none' ? look.filter : 'brightness(1)');
   vf.dataset.aspect = cam.aspect;
+  paintPoseOverlay(el, state); // FR-8.3: накладка лишається на час зйомки (відлік іде під нею); панелі на S05 немає
 }
 
 function paintCountdown(el, snap) {
@@ -301,7 +304,10 @@ function attachStream(el) {
 
 /* ---------- контракт модуля ---------- */
 
-export function render(state, ctx) {
+export function render(initial, ctx) {
+  const patch = poseGuidePatch(ctx.params); // відладка: ?pose=1 / ?pose=inspo-02
+  if (patch) store.set(patch);
+  const state = store.get();
   const el = h(skeleton());
   el._ui = { sig: {}, mounted: false, finished: false, flying: 0, streamTries: 0, unsub: null };
   const ui = el._ui;

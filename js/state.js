@@ -7,9 +7,10 @@
  */
 
 import { copy } from './copy.js';
+import { inspo } from './data.js';
 
 const STORAGE_KEY = 'kadro.state.v1';
-const PERSISTED = ['onboarded', 'coachSeen', 'focalHintSeen', 'permissions', 'isPlus', 'exports', 'camera', 'session', 'lookId', 'settings', 'storage'];
+const PERSISTED = ['onboarded', 'coachSeen', 'focalHintSeen', 'permissions', 'isPlus', 'exports', 'camera', 'session', 'lookId', 'settings', 'storage', 'inspoFavs'];
 
 export function defaults() {
   return {
@@ -23,7 +24,8 @@ export function defaults() {
     camera: { facing: 'back', aspect: '3:4', flash: 'off', focal: 26, exposure: 0 },
     session: { delay: 10, count: 20, interval: 2, presetId: 'portrait', configured: false },
     lookId: 'standard',
-    poseGuide: { inspoId: null, opacity: 0.4 },
+    poseGuide: { inspoId: null, opacity: 0.4 }, // inspoId != null = накладка увімкнена (S04/S05); не зберігається між запусками
+    inspoFavs: inspo.filter((x) => x.fav).map((x) => x.id), // S10/S11: id обраних референсів (стартові - fav у data.js)
     settings: {
       grid: true, level: true, keepAwake: true, flashBeforeShot: true,
       haptics: true, countdownSound: true, saveMode: 'manual', keepOriginals: true,

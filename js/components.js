@@ -77,12 +77,13 @@ export function listRow({ title, subtitle, glyph, value, kind = 'chevron', name,
   return `<button class="list-row list-row--tappable" type="button"${action ? ` data-action="${action}"` : ''}${dis}${aria}>${lead}${body}${val}${tail}</button>`;
 }
 
-/** NavBar (push-екрани S12, далі S10/S11): Back (solid, над рівним фоном) + заголовок по центру */
-export function navBar({ title, backLabel }) {
+/** NavBar (push-екрани S12, S10, S11): Back (solid, над рівним фоном) + заголовок по центру; end - HTML кнопок справа */
+export function navBar({ title, backLabel, end = '', className = '' }) {
   return `
-    <header class="navbar">
+    <header class="navbar${className ? ` ${className}` : ''}">
       ${iconButton({ name: 'chevron-left', label: backLabel, variant: 'solid', action: 'back' })}
       <h1 class="navbar__title t-headline">${esc(title)}</h1>
+      ${end ? `<div class="navbar__end">${end}</div>` : ''}
     </header>`;
 }
 
@@ -212,4 +213,33 @@ export function wheelSet({ columns }) {
       </div>`;
   }).join('');
   return `<div class="wheel-set"><div class="wheel-set__labels">${labels}</div><div class="wheel-set__wheels">${wheels}</div></div>`;
+}
+
+/* ---------- Phase 6: S10 Inspo, S11 Reference, Pose guide ---------- */
+
+/** SegmentChip sm з емодзі і вибором (aria-pressed): чіпи категорій S10. emoji - виняток open-questions #11 */
+export function categoryChip({ id, emoji, label, ariaLabel, pressed }) {
+  return `<button class="segment-chip segment-chip--sm" type="button" aria-pressed="${Boolean(pressed)}" aria-label="${esc(ariaLabel)}" data-category="${esc(id)}"><span class="segment-chip__emoji" aria-hidden="true">${emoji}</span><span aria-hidden="true">${esc(label)}</span></button>`;
+}
+
+/** Slider (ComponentsKit SliderVM small): value/min/max/step у одиницях значення; --slider-p = частка 0..1 */
+export function slider({ name, value, min, max, step, label, valueText }) {
+  const p = (value - min) / (max - min);
+  return `
+    <div class="slider" role="slider" tabindex="0" data-slider="${esc(name)}" aria-label="${esc(label)}"
+      aria-valuemin="${min}" aria-valuemax="${max}" aria-valuenow="${value}" aria-valuetext="${esc(valueText)}"
+      data-min="${min}" data-max="${max}" data-step="${step}" style="--slider-p: ${p}">
+      <span class="slider__bar"></span><span class="slider__handle"></span><span class="slider__rest"></span>
+    </div>`;
+}
+
+/** SearchField (ShipSwift SWSearchBar): капсула з лупою, input, кнопка очищення (з'являється, коли є текст) */
+export function searchField({ placeholder, label, clearLabel, value = '' }) {
+  return `
+    <div class="search-field" role="search">
+      ${icon('magnifying-glass')}
+      <input class="search-field__input" type="search" enterkeyhint="search" autocomplete="off" autocorrect="off" spellcheck="false"
+        placeholder="${esc(placeholder)}" aria-label="${esc(label)}" value="${esc(value)}" data-bind="query">
+      <button class="icon-btn icon-btn--plain icon-btn--sm search-field__clear" type="button" data-action="search-clear" aria-label="${esc(clearLabel)}"${value ? '' : ' hidden'}>${icon('x-circle', 'solid')}</button>
+    </div>`;
 }
