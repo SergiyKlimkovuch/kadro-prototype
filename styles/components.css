@@ -1604,7 +1604,8 @@ button {
   top: calc((var(--btn-h-sm) - var(--tap)) / 2);
   bottom: calc((var(--btn-h-sm) - var(--tap)) / 2);
 }
-.segment-chip__emoji { margin-right: var(--btn-content-space); font-size: var(--fs-button-md); line-height: 1; }
+.segment-chip__emoji { display: inline-flex; margin-right: var(--btn-content-space); font-size: var(--fs-button-md); line-height: 1; }
+.segment-chip__emoji-img { display: block; width: var(--emoji-size); height: var(--emoji-size); } /* PNG 64 -> 24 pt: чітко на @3x */
 .segment-chip[aria-pressed="true"] { background: var(--label); color: var(--bg); }
 
 /* ---------- Slider (ComponentsKit Slider/Models/SliderVM.swift + SUSlider.swift: смуга - крок 4 - ручка - залишок) ----------
